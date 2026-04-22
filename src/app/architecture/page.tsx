@@ -9,6 +9,7 @@ import {
   Gauge,
   Layers,
   Globe,
+  BookOpen,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { GithubIcon } from "@/components/icons/github";
@@ -198,6 +199,15 @@ export default function ArchitecturePage() {
             retrieval (bi-encoder → cross-encoder rerank), LLM-judge eval
             loop, and a committed iteration history in git.
           </p>
+          <a
+            href="https://ramoncarrillo.dev/blog/building-a-grounded-rag-assistant"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-5 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/15"
+          >
+            <BookOpen className="h-3.5 w-3.5" />
+            Read the full case study on ramoncarrillo.dev
+          </a>
         </section>
 
         {/* At-a-glance architecture diagram */}
