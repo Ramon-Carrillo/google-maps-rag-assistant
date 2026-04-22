@@ -70,21 +70,31 @@ async function runQuestion(
   q: GoldenQuestion,
   systemPrompt: string
 ): Promise<QuestionResult> {
-  // 1. Retrieve
-  const docs: RetrievedDocument[] = await retrieveRelevantDocs(q.question, {
-    matchThreshold: 0.3, // lower threshold so refusal questions still get considered
-    matchCount: 5,
-  });
+  // 1. Retrieve using production defaults (two-stage: bi-encoder →
+  // Voyage rerank → top-5). The retrieveRelevantDocs function handles
+  // rate-limit fallback internally.
+  const docs: RetrievedDocument[] = await retrieveRelevantDocs(q.question);
 
-  // 2. Generate (same shape as /api/chat)
+  // 2. Generate — MUST match /api/chat config exactly, including the
+  // web_search tool. Without the tool, long-tail questions that would
+  // succeed in production (via live Google-docs lookup) would fail in
+  // eval, giving us a misleading score.
   const context = formatRetrievedContext(docs);
   const fullSystem = `${systemPrompt}\n\n## Retrieved Documentation\n\n${context}`;
+
+  const webSearchTool = anthropic.tools.webSearch_20260209({
+    maxUses: 3,
+    allowedDomains: ["developers.google.com", "cloud.google.com"],
+  });
 
   const { text } = await generateText({
     model: anthropic(CHAT_MODEL),
     system: fullSystem,
     prompt: q.question,
-    maxOutputTokens: 1024,
+    maxOutputTokens: 2048,
+    tools: {
+      web_search: webSearchTool,
+    },
   });
 
   // 3. Score — citation is a deterministic check; mentions and refusal

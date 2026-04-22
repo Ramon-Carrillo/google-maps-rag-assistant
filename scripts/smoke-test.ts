@@ -11,12 +11,18 @@ const QUERIES = [
   "What's the pricing for the Routes API?",
   "How do I use the new Places Autocomplete widget?",
   "What is deprecated in 2026?",
+  // Adversarial: should return 0 sources after reranker filters out
+  // marginal billing-chunk matches. This is the regression we saw on
+  // eval q12 — if the reranker is working, rerank scores for this query
+  // should all fall below the default 0.5 threshold.
+  "What is the pricing for the Google Maps Holographic API?",
 ];
 
 async function main() {
   for (const q of QUERIES) {
     console.log(`\n=== Query: ${q}`);
-    const hits = await retrieveRelevantDocs(q, { matchCount: 3, matchThreshold: 0.3 });
+    // Use the defaults (20 candidates → rerank → top 5 above 0.5)
+    const hits = await retrieveRelevantDocs(q);
     if (hits.length === 0) {
       console.log("  (no hits above threshold)");
       continue;

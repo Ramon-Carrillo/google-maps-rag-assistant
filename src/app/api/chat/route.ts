@@ -127,29 +127,42 @@ export async function POST(request: Request) {
 
   const queryText = extractText(lastUserMessage);
 
-  // Retrieve relevant documents. Threshold was empirically tuned against
-  // the 12-question eval set: 0.65 was too strict (legitimate Maps
-  // questions like "what's deprecated in 2026" topped at 0.525). 0.4
-  // catches all real matches without letting in noise — out-of-scope
-  // questions still sit in the 0.3s and get filtered.
+  // Retrieve relevant documents via two-stage retrieval (bi-encoder
+  // cosine → Voyage rerank → final top-K). We use the defaults from
+  // retrieval.ts: stage-1 matchThreshold 0.3 / matchCount 20 →
+  // rerank → finalTopK 5 above rerankThreshold 0.5.
+  //
+  // When the reranker rate-limits on the Voyage free tier, the retrieval
+  // function falls back to cosine-ordered top-5 so chat stays working.
   let retrievedDocs: Awaited<ReturnType<typeof retrieveRelevantDocs>> = [];
   try {
-    retrievedDocs = await retrieveRelevantDocs(queryText, {
-      matchThreshold: 0.4,
-      matchCount: 5,
-    });
+    retrievedDocs = await retrieveRelevantDocs(queryText);
   } catch (err) {
     // Any retrieval failure (Voyage down, Neon unreachable) degrades
-    // gracefully — we pass no context and rely on the system prompt's
-    // refusal instruction. Error is logged to Vercel function logs.
+    // gracefully — we pass no context and rely on the web_search tool
+    // below to cover the answer from live Google docs.
     console.error("Retrieval failed:", err);
   }
 
   const context = formatRetrievedContext(retrievedDocs);
 
-  // Load system prompt and inject retrieved context
+  // Load system prompt and inject retrieved context. The prompt tells
+  // the model to use ONLY retrieved + web-search-tool content — no
+  // pretraining fill-in.
   const basePrompt = loadSystemPrompt();
-  const systemPrompt = `${basePrompt}\n\n## Retrieved Documentation\n\nThe following documentation chunks were retrieved based on the user's query. Use ONLY this information to answer. Cite sources using the format specified above.\n\n${context}`;
+  const systemPrompt = `${basePrompt}\n\n## Retrieved Documentation\n\nThe following documentation chunks were retrieved from the curated corpus based on the user's query. Use this as the PRIMARY source of truth. If it doesn't cover the question, call the \`web_search\` tool for live Google Maps documentation before answering. Cite sources using the format specified above.\n\n${context}`;
+
+  // Hybrid RAG: Claude can escalate to Anthropic's managed web search
+  // when the curated corpus doesn't cover the question. We restrict the
+  // search to Google-owned documentation domains and cap at 3 searches
+  // per turn so a single user message can't burn unlimited searches.
+  //
+  // Cost: ~$10 per 1,000 searches billed to our Anthropic account —
+  // negligible at portfolio demo traffic.
+  const webSearchTool = anthropic.tools.webSearch_20260209({
+    maxUses: 3,
+    allowedDomains: ["developers.google.com", "cloud.google.com"],
+  });
 
   // Build a UI message stream that (a) emits a "sources" data part
   // upfront so the client can render citation chips before the answer,
@@ -174,6 +187,9 @@ export async function POST(request: Request) {
         system: systemPrompt,
         messages: modelMessages,
         maxOutputTokens: 2048,
+        tools: {
+          web_search: webSearchTool,
+        },
       });
 
       writer.merge(result.toUIMessageStream());

@@ -26,7 +26,7 @@
       "id": "q04-2026-deprecations",
       "question": "What Google Maps features are being deprecated in 2026?",
       "expected_sources": ["https://developers.google.com/maps/deprecations"],
-      "must_mention": ["deprecat"],
+      "must_mention": ["deprecation"],
       "should_refuse": false
     },
     {
@@ -82,6 +82,30 @@
       "expected_sources": [],
       "should_refuse": true,
       "refusal_reason": "Product does not exist — model must not hallucinate a price."
+    },
+    {
+      "id": "q13-longtail-http-429",
+      "question": "Does the OVER_QUERY_LIMIT error return an HTTP 429 status code, or does it return HTTP 200 with the status in the body?",
+      "expected_sources": [],
+      "must_mention": ["200", "429"],
+      "should_refuse": false,
+      "notes": "Long-tail. Not in curated corpus. Must trigger web_search and distinguish legacy REST (200 + body status) from newer APIs (actual 429)."
+    },
+    {
+      "id": "q14-longtail-places-session-token",
+      "question": "How long does a Places Autocomplete session token stay valid, and what happens when it expires mid-session?",
+      "expected_sources": [],
+      "must_mention": ["session"],
+      "should_refuse": false,
+      "notes": "Long-tail. Specific TTL detail not in the Places doc. Must trigger web_search."
+    },
+    {
+      "id": "q15-longtail-geocoding-region-biasing",
+      "question": "What is the difference between the region parameter and the components parameter in the Geocoding API when biasing results by country?",
+      "expected_sources": [],
+      "must_mention": ["region", "components"],
+      "should_refuse": false,
+      "notes": "Long-tail. Specific parameter-semantics detail not in the Geocoding doc. Must trigger web_search."
     }
   ]
 }
