@@ -1,0 +1,146 @@
+[
+  {
+    "id": "q01-referer-error",
+    "question": "I'm getting a RefererNotAllowedMapError on my production site. How do I fix it?",
+    "retrieved": [],
+    "answer": "[error: Not Found]",
+    "scores": {
+      "citation_hit": false,
+      "mentions_ok": false,
+      "refusal_ok": false
+    },
+    "passed": false
+  },
+  {
+    "id": "q02-routes-pricing",
+    "question": "How much does the Routes API cost per request?",
+    "retrieved": [],
+    "answer": "[error: Not Found]",
+    "scores": {
+      "citation_hit": false,
+      "mentions_ok": false,
+      "refusal_ok": false
+    },
+    "passed": false
+  },
+  {
+    "id": "q03-places-new-autocomplete",
+    "question": "How do I use the new PlaceAutocompleteElement web component?",
+    "retrieved": [],
+    "answer": "[error: Not Found]",
+    "scores": {
+      "citation_hit": false,
+      "mentions_ok": false,
+      "refusal_ok": false
+    },
+    "passed": false
+  },
+  {
+    "id": "q04-2026-deprecations",
+    "question": "What Google Maps features are being deprecated in 2026?",
+    "retrieved": [],
+    "answer": "[error: Not Found]",
+    "scores": {
+      "citation_hit": false,
+      "mentions_ok": false,
+      "refusal_ok": false
+    },
+    "passed": false
+  },
+  {
+    "id": "q05-getting-started",
+    "question": "How do I load the Maps JavaScript API in a React app?",
+    "retrieved": [],
+    "answer": "[error: Not Found]",
+    "scores": {
+      "citation_hit": false,
+      "mentions_ok": false,
+      "refusal_ok": false
+    },
+    "passed": false
+  },
+  {
+    "id": "q06-200-credit",
+    "question": "Does Google Maps Platform still offer a $200 monthly credit?",
+    "retrieved": [],
+    "answer": "[error: Not Found]",
+    "scores": {
+      "citation_hit": false,
+      "mentions_ok": false,
+      "refusal_ok": false
+    },
+    "passed": false
+  },
+  {
+    "id": "q07-directions-vs-routes",
+    "question": "What's the difference between the Directions API and the Routes API?",
+    "retrieved": [],
+    "answer": "[error: Not Found]",
+    "scores": {
+      "citation_hit": false,
+      "mentions_ok": false,
+      "refusal_ok": false
+    },
+    "passed": false
+  },
+  {
+    "id": "q08-quota-exceeded",
+    "question": "What does the OVER_QUERY_LIMIT error mean and how do I resolve it?",
+    "retrieved": [],
+    "answer": "[error: Not Found]",
+    "scores": {
+      "citation_hit": false,
+      "mentions_ok": false,
+      "refusal_ok": false
+    },
+    "passed": false
+  },
+  {
+    "id": "q09-places-legacy",
+    "question": "Should I use the legacy Places API Autocomplete service or the new one?",
+    "retrieved": [],
+    "answer": "[error: Not Found]",
+    "scores": {
+      "citation_hit": false,
+      "mentions_ok": false,
+      "refusal_ok": false
+    },
+    "passed": false
+  },
+  {
+    "id": "q10-out-of-scope-weather",
+    "question": "What's the weather in San Francisco today?",
+    "retrieved": [],
+    "answer": "[error: Not Found]",
+    "scores": {
+      "citation_hit": false,
+      "mentions_ok": false,
+      "refusal_ok": false
+    },
+    "passed": false
+  },
+  {
+    "id": "q11-out-of-scope-aws",
+    "question": "How do I deploy a Lambda function on AWS?",
+    "retrieved": [],
+    "answer": "[error: Not Found]",
+    "scores": {
+      "citation_hit": false,
+      "mentions_ok": false,
+      "refusal_ok": false
+    },
+    "passed": false
+  },
+  {
+    "id": "q12-hallucination-bait",
+    "question": "What is the pricing for the Google Maps Holographic API?",
+    "retrieved": [],
+    "answer": "[error: Not Found]",
+    "scores": {
+      "citation_hit": false,
+      "mentions_ok": false,
+      "refusal_ok": false
+    },
+    "passed": false
+  }
+]

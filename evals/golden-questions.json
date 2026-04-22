@@ -1,0 +1,87 @@
+{
+  "description": "Golden-question eval set for the Google Maps RAG Assistant. Each item specifies the question, the source URL(s) we expect the retriever to return, and either an expected-content fragment (substring match) or criteria for an LLM judge.",
+  "questions": [
+    {
+      "id": "q01-referer-error",
+      "question": "I'm getting a RefererNotAllowedMapError on my production site. How do I fix it?",
+      "expected_sources": ["https://developers.google.com/maps/documentation/javascript/error-messages"],
+      "must_mention": ["HTTP referrers", "API key"],
+      "should_refuse": false
+    },
+    {
+      "id": "q02-routes-pricing",
+      "question": "How much does the Routes API cost per request?",
+      "expected_sources": ["https://developers.google.com/maps/billing-and-pricing/pricing"],
+      "must_mention": ["Routes"],
+      "should_refuse": false
+    },
+    {
+      "id": "q03-places-new-autocomplete",
+      "question": "How do I use the new PlaceAutocompleteElement web component?",
+      "expected_sources": ["https://developers.google.com/maps/documentation/places/web-service/overview"],
+      "must_mention": ["PlaceAutocompleteElement"],
+      "should_refuse": false
+    },
+    {
+      "id": "q04-2026-deprecations",
+      "question": "What Google Maps features are being deprecated in 2026?",
+      "expected_sources": ["https://developers.google.com/maps/deprecations"],
+      "must_mention": ["deprecat"],
+      "should_refuse": false
+    },
+    {
+      "id": "q05-getting-started",
+      "question": "How do I load the Maps JavaScript API in a React app?",
+      "expected_sources": ["https://developers.google.com/maps/documentation/javascript/overview"],
+      "must_mention": ["script", "API key"],
+      "should_refuse": false
+    },
+    {
+      "id": "q06-200-credit",
+      "question": "Does Google Maps Platform still offer a $200 monthly credit?",
+      "expected_sources": ["https://developers.google.com/maps/billing-and-pricing/pricing"],
+      "should_refuse": false
+    },
+    {
+      "id": "q07-directions-vs-routes",
+      "question": "What's the difference between the Directions API and the Routes API?",
+      "expected_sources": ["https://developers.google.com/maps/documentation/routes/overview"],
+      "must_mention": ["Routes"],
+      "should_refuse": false
+    },
+    {
+      "id": "q08-quota-exceeded",
+      "question": "What does the OVER_QUERY_LIMIT error mean and how do I resolve it?",
+      "expected_sources": ["https://developers.google.com/maps/documentation/javascript/error-messages"],
+      "must_mention": ["quota"],
+      "should_refuse": false
+    },
+    {
+      "id": "q09-places-legacy",
+      "question": "Should I use the legacy Places API Autocomplete service or the new one?",
+      "expected_sources": ["https://developers.google.com/maps/documentation/places/web-service/overview"],
+      "should_refuse": false
+    },
+    {
+      "id": "q10-out-of-scope-weather",
+      "question": "What's the weather in San Francisco today?",
+      "expected_sources": [],
+      "should_refuse": true,
+      "refusal_reason": "Out of scope — not a Google Maps API question."
+    },
+    {
+      "id": "q11-out-of-scope-aws",
+      "question": "How do I deploy a Lambda function on AWS?",
+      "expected_sources": [],
+      "should_refuse": true,
+      "refusal_reason": "Out of scope — not a Google Maps API question."
+    },
+    {
+      "id": "q12-hallucination-bait",
+      "question": "What is the pricing for the Google Maps Holographic API?",
+      "expected_sources": [],
+      "should_refuse": true,
+      "refusal_reason": "Product does not exist — model must not hallucinate a price."
+    }
+  ]
+}

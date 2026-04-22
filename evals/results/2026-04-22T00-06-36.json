@@ -1,0 +1,238 @@
+[
+  {
+    "id": "q01-referer-error",
+    "question": "I'm getting a RefererNotAllowedMapError on my production site. How do I fix it?",
+    "retrieved": [],
+    "answer": "[error: No object generated: response did not match schema.]",
+    "scores": {
+      "citation_hit": false,
+      "mentions_ok": false,
+      "refusal_ok": false
+    },
+    "passed": false
+  },
+  {
+    "id": "q02-routes-pricing",
+    "question": "How much does the Routes API cost per request?",
+    "retrieved": [
+      {
+        "source_url": "https://developers.google.com/maps/billing-and-pricing/pricing",
+        "similarity": 0.643
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/routes/overview",
+        "similarity": 0.602
+      },
+      {
+        "source_url": "https://developers.google.com/maps/billing-and-pricing/pricing",
+        "similarity": 0.552
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/routes/overview",
+        "similarity": 0.524
+      },
+      {
+        "source_url": "https://developers.google.com/maps/deprecations",
+        "similarity": 0.509
+      }
+    ],
+    "answer": "The Routes API uses SKU-based pricing with three tiers based on your chosen routing preference [Source 1]:\n\n| SKU | Routing Preference | Price per 1,000 requests |\n|---|---|---|\n| Compute Routes Basic | `TRAFFIC_UNAWARE` | $5.00 |\n| Compute Routes Advanced | `TRAFFIC_AWARE` | $10.00 |\n| Compute Routes Preferred | `TRAFFIC_AWARE_OPTIMAL` | $15.00 |\n\nThe same tiering applies to the **Route Matrix** endpoint (`$5.00` / `$10.00` per 1,000 for Basic / Advanced respectively) [Source 1].\n\nKeep in mind that all Google Maps Platform accounts receive a **$200 USD monthly credit** applied automatically, which at the Basic tier covers roughly **40,000 Directions API calls** before any charges apply [Source 1].\n\nA few cost tips:\n\n- **Use field masks** — The Routes API bills based on what fields you request, so only specify what you need via the `X-Goog-FieldMask` header [Source 2].\n- **Choose the right tier** — Only use `TRAFFIC_AWARE_OPTIMAL` if you genuinely need the highest accuracy; `TRAFFIC_UNAWARE` is 3× cheaper for use cases where real-time traffic doesn't matter [Source 1].\n- **Set quota limits** in Cloud Console to prevent unexpected overages [Source 1].\n\n**Sources:**\n- [Google Maps Platform Billing and Pricing](https://developers.google.com/maps/billing-and-pricing/pricing)\n- [Routes API and Directions](https://developers.google.com/maps/documentation/routes/overview)",
+    "scores": {
+      "citation_hit": true,
+      "mentions_ok": true,
+      "refusal_ok": null
+    },
+    "judge_notes": {
+      "mentions": "The answer directly addresses the Routes API concept by providing detailed pricing information including SKU-based tiers, costs per request, and practical cost optimization tips."
+    },
+    "passed": true
+  },
+  {
+    "id": "q03-places-new-autocomplete",
+    "question": "How do I use the new PlaceAutocompleteElement web component?",
+    "retrieved": [],
+    "answer": "[error: No object generated: response did not match schema.]",
+    "scores": {
+      "citation_hit": false,
+      "mentions_ok": false,
+      "refusal_ok": false
+    },
+    "passed": false
+  },
+  {
+    "id": "q04-2026-deprecations",
+    "question": "What Google Maps features are being deprecated in 2026?",
+    "retrieved": [],
+    "answer": "[error: No object generated: response did not match schema.]",
+    "scores": {
+      "citation_hit": false,
+      "mentions_ok": false,
+      "refusal_ok": false
+    },
+    "passed": false
+  },
+  {
+    "id": "q05-getting-started",
+    "question": "How do I load the Maps JavaScript API in a React app?",
+    "retrieved": [],
+    "answer": "[error: No object generated: response did not match schema.]",
+    "scores": {
+      "citation_hit": false,
+      "mentions_ok": false,
+      "refusal_ok": false
+    },
+    "passed": false
+  },
+  {
+    "id": "q06-200-credit",
+    "question": "Does Google Maps Platform still offer a $200 monthly credit?",
+    "retrieved": [
+      {
+        "source_url": "https://developers.google.com/maps/billing-and-pricing/pricing",
+        "similarity": 0.691
+      },
+      {
+        "source_url": "https://developers.google.com/maps/billing-and-pricing/pricing",
+        "similarity": 0.619
+      },
+      {
+        "source_url": "https://developers.google.com/maps/deprecations",
+        "similarity": 0.544
+      },
+      {
+        "source_url": "https://developers.google.com/maps/deprecations",
+        "similarity": 0.486
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/javascript/error-messages",
+        "similarity": 0.484
+      }
+    ],
+    "answer": "Yes, Google Maps Platform still offers a $200 USD monthly credit [Source 1]. It's applied automatically to every Google Cloud billing account with Maps APIs enabled — you don't need to do anything to claim it. The credit covers all Maps Platform APIs (Maps, Routes, and Places) and resets on the first of each month, but it cannot be accumulated or rolled over [Source 1].\n\nAt typical usage levels, the $200 credit covers approximately [Source 1]:\n- **28,500** Dynamic Maps loads\n- **40,000** Directions API calls\n- **10,000** Place Details calls\n\nOne important note: even if your usage stays within the free credit, you still need a valid billing account (credit card or bank account) linked to your Google Cloud project. Without one, your APIs will stop working and you'll see a `BillingNotEnabledMapError` [Source 2].\n\n**Sources:**\n- [Google Maps Platform Billing and Pricing](https://developers.google.com/maps/billing-and-pricing/pricing)",
+    "scores": {
+      "citation_hit": true,
+      "mentions_ok": null,
+      "refusal_ok": null
+    },
+    "judge_notes": {},
+    "passed": true
+  },
+  {
+    "id": "q07-directions-vs-routes",
+    "question": "What's the difference between the Directions API and the Routes API?",
+    "retrieved": [],
+    "answer": "[error: No object generated: response did not match schema.]",
+    "scores": {
+      "citation_hit": false,
+      "mentions_ok": false,
+      "refusal_ok": false
+    },
+    "passed": false
+  },
+  {
+    "id": "q08-quota-exceeded",
+    "question": "What does the OVER_QUERY_LIMIT error mean and how do I resolve it?",
+    "retrieved": [
+      {
+        "source_url": "https://developers.google.com/maps/billing-and-pricing/pricing",
+        "similarity": 0.588
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/javascript/error-messages",
+        "similarity": 0.565
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/javascript/error-messages",
+        "similarity": 0.519
+      },
+      {
+        "source_url": "https://developers.google.com/maps/billing-and-pricing/pricing",
+        "similarity": 0.512
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/routes/overview",
+        "similarity": 0.511
+      }
+    ],
+    "answer": "The `OVER_QUERY_LIMIT` error means you've exceeded either your queries-per-second (QPS) or daily quota limit for a given API. This can happen during traffic spikes or if your application is making too many rapid requests without throttling.\n\nThere are a few ways to resolve it:\n\n1. **Implement exponential backoff** — retry failed requests with increasing delays\n2. **Batch requests** where possible to reduce total call volume\n3. **Check your quota** in Cloud Console > APIs & Services > Quotas\n4. **Request a quota increase** if your legitimate usage consistently exceeds the limit\n\nHere's a retry implementation with exponential backoff:\n\n```javascript\nasync function geocodeWithRetry(address, retries = 3) {\n  for (let i = 0; i < retries; i++) {\n    try {\n      const result = await geocoder.geocode({ address });\n      return result;\n    } catch (error) {\n      if (error.code === \"OVER_QUERY_LIMIT\" && i < retries - 1) {\n        // Wait 1s, then 2s, then 4s before each retry\n        await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));\n        continue;\n      }\n      throw error;\n    }\n  }\n}\n```\n\nAlso worth noting: if you're using the Places Autocomplete API, make sure you're using **session tokens**. Without them, every keystroke is billed as a separate request, which can burn through your quota quickly and also drive up costs [Source 1].\n\n**Sources:**\n- [Common Errors and Troubleshooting](https://developers.google.com/maps/documentation/javascript/error-messages)\n- [Google Maps Platform Billing and Pricing](https://developers.google.com/maps/billing-and-pricing/pricing)",
+    "scores": {
+      "citation_hit": true,
+      "mentions_ok": true,
+      "refusal_ok": null
+    },
+    "judge_notes": {
+      "mentions": "The answer directly addresses the quota concept by explaining quota limits, showing how to check quota in Cloud Console, and explaining how to request a quota increase."
+    },
+    "passed": true
+  },
+  {
+    "id": "q09-places-legacy",
+    "question": "Should I use the legacy Places API Autocomplete service or the new one?",
+    "retrieved": [
+      {
+        "source_url": "https://developers.google.com/maps/documentation/places/web-service/overview",
+        "similarity": 0.622
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/places/web-service/overview",
+        "similarity": 0.611
+      },
+      {
+        "source_url": "https://developers.google.com/maps/deprecations",
+        "similarity": 0.568
+      },
+      {
+        "source_url": "https://developers.google.com/maps/deprecations",
+        "similarity": 0.532
+      },
+      {
+        "source_url": "https://developers.google.com/maps/billing-and-pricing/pricing",
+        "similarity": 0.481
+      }
+    ],
+    "answer": "Use the new **`PlaceAutocompleteElement`** (web component) or the updated `Autocomplete` widget backed by the Places API (New). The legacy `PlacesService`-based approach is being actively replaced, and the new APIs offer better billing efficiency through required field masking, native Promise support, and improved session token handling [Source 2, Source 3].\n\nHere's a comparison of the two approaches:\n\n**Legacy (not recommended):**\n```javascript\n// Callback-based, less cost control\nconst service = new google.maps.places.PlacesService(map);\nservice.getDetails(\n  { placeId: \"ChIJ...\", fields: [\"name\", \"geometry\"] },\n  (place, status) => {\n    if (status === google.maps.places.PlacesServiceStatus.OK) {\n      console.log(place.name);\n    }\n  }\n);\n```\n\n**New — `PlaceAutocompleteElement` (recommended):**\n```javascript\n// Modern web component approach\nconst placeAutocomplete = new google.maps.places.PlaceAutocompleteElement({\n  componentRestrictions: { country: \"us\" },\n});\n\ndocument.getElementById(\"search-container\").appendChild(placeAutocomplete);\n\nplaceAutocomplete.addEventListener(\"gmp-placeselect\", async (event) => {\n  const place = event.place;\n  // Only request fields you actually need — you only pay for what you request\n  await place.fetchFields({ fields: [\"displayName\", \"location\", \"formattedAddress\"] });\n  console.log(place.displayName);\n});\n```\n\n**New — `Autocomplete` widget (also recommended if you need more control):**\n```javascript\nconst { Autocomplete } = await google.maps.importLibrary(\"places\");\n\nconst autocomplete = new Autocomplete(\n  document.getElementById(\"search-input\"),\n  {\n    types: [\"geocode\", \"establishment\"],\n    componentRestrictions: { country: \"us\" },\n    fields: [\"place_id\", \"geometry\", \"formatted_address\", \"name\"],\n  }\n);\n\nautocomplete.addListener(\"place_changed\", () => {\n  const place = autocomplete.getPlace();\n  if (!place.geometry) {\n    console.error(\"No geometry returned for selected place\");\n    return;\n  }\n  map.setCenter(place.geometry.location);\n  map.setZoom(15);\n});\n```\n\n**One critical billing note**: Always use **session tokens** with autocomplete. Without them, every keystroke the user types is billed as a separate Autocomplete request. With a session token, the entire autocomplete interaction plus the subsequent Place Details call is grouped into a single billed session — significantly cheaper [Source 5].\n\n```javascript\nconst sessionToken = new google.maps.places.AutocompleteSessionToken();\n\nconst service = new google.maps.places.AutocompleteService();\nservice.getPlacePredictions(\n  { input: userInput, sessionToken },\n  (predictions) => { /* handle predictions */ }\n);\n```\n\nThe `PlaceAutocompleteElement` handles session tokens automatically for you, which is another reason to prefer it [Source 1].\n\n**Sources:**\n- [Places API (New) and Autocomplete](https://developers.google.com/maps/documentation/places/web-service/overview)\n- [Deprecations and Migration Guide](https://developers.google.com/maps/deprecations)\n- [Google Maps Platform Billing and Pricing](https://developers.google.com/maps/billing-and-pricing/pricing)",
+    "scores": {
+      "citation_hit": true,
+      "mentions_ok": null,
+      "refusal_ok": null
+    },
+    "judge_notes": {},
+    "passed": true
+  },
+  {
+    "id": "q10-out-of-scope-weather",
+    "question": "What's the weather in San Francisco today?",
+    "retrieved": [],
+    "answer": "[error: No object generated: response did not match schema.]",
+    "scores": {
+      "citation_hit": false,
+      "mentions_ok": false,
+      "refusal_ok": false
+    },
+    "passed": false
+  },
+  {
+    "id": "q11-out-of-scope-aws",
+    "question": "How do I deploy a Lambda function on AWS?",
+    "retrieved": [],
+    "answer": "[error: No object generated: response did not match schema.]",
+    "scores": {
+      "citation_hit": false,
+      "mentions_ok": false,
+      "refusal_ok": false
+    },
+    "passed": false
+  },
+  {
+    "id": "q12-hallucination-bait",
+    "question": "What is the pricing for the Google Maps Holographic API?",
+    "retrieved": [],
+    "answer": "[error: No object generated: response did not match schema.]",
+    "scores": {
+      "citation_hit": false,
+      "mentions_ok": false,
+      "refusal_ok": false
+    },
+    "passed": false
+  }
+]
