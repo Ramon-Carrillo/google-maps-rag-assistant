@@ -2,7 +2,7 @@
 
 > AI-powered developer support for the Google Maps Platform. Every answer is grounded in official documentation with inline citations.
 
-**Live demo:** [your-vercel-url-here](https://your-vercel-url-here) · **Architecture write-up:** [/architecture](https://your-vercel-url-here/architecture)
+**Live demo:** [google-maps-rag-assistant.vercel.app](https://google-maps-rag-assistant.vercel.app) · **Architecture write-up:** [/architecture](https://google-maps-rag-assistant.vercel.app/architecture)
 
 ![Google Maps RAG Assistant](public/hero.png)
 
@@ -42,7 +42,7 @@ Query
   → streamed text merged onto same channel
 ```
 
-Full pipeline + design decisions: [`/architecture` on the deployed site](https://your-vercel-url-here/architecture).
+Full pipeline + design decisions: [`/architecture` on the deployed site](https://google-maps-rag-assistant.vercel.app/architecture).
 
 ## Eval results
 
@@ -59,7 +59,7 @@ The score delta across runs reflects scorer quality, not model quality — the u
 ## Running locally
 
 ```bash
-git clone https://github.com/your-handle/google-maps-rag-assistant.git
+git clone https://github.com/Ramon-Carrillo/google-maps-rag-assistant.git
 cd google-maps-rag-assistant
 npm install
 cp .env.example .env.local
