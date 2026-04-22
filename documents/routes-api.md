@@ -1,66 +1,76 @@
 ---
-title: Routes API and Directions
+title: Routes API
 source_url: https://developers.google.com/maps/documentation/routes/overview
 ---
 
-# Routes API and Directions
+# Routes API
 
-The Routes API computes routes between locations. It replaces the legacy Directions API with better performance, more routing options, and support for field masks. It's available as a REST API and through the Maps JavaScript API's `DirectionsService`.
+<!-- Note: Geocoding content further down will be extracted to geocoding.md in a later batch. Do not rely on it living here long-term. -->
 
-## Routes API (REST)
+The **Routes API** is Google Maps Platform's current REST product for computing routes and travel-time matrices between known origins and destinations. It supersedes the legacy Directions API and Distance Matrix API.
 
-### Compute Routes
+> **Decision rule:** Use the Routes API when origins and destinations are known. Use the [Route Optimization API](./route-optimization.md) when the solver must decide which stops go on which vehicle in what order.
 
-The primary endpoint for calculating a route:
+## Endpoints
 
-```
+Two REST endpoints, both served from `routes.googleapis.com`:
+
+| Purpose | Method + URL |
+|---|---|
+| Single route between two places | `POST https://routes.googleapis.com/directions/v2:computeRoutes` |
+| Many-to-many travel times/distances | `POST https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix` |
+
+## Required headers
+
+- `Content-Type: application/json`
+- `X-Goog-Api-Key: YOUR_API_KEY`
+- `X-Goog-FieldMask: <comma-separated field paths>`
+
+The field mask is load-bearing: it controls both the response shape **and** the SKU tier billed. Request only the fields you actually consume.
+
+## SKUs and pricing
+
+Routes API is billed under tiered SKUs. Both `computeRoutes` and `computeRouteMatrix` have Essentials, Pro, and Enterprise variants at the same prices. At the 0–100K band (per 1,000 requests):
+
+| Tier | Price / 1K (0–100K) | Typical fields |
+|---|---|---|
+| Essentials | **$5.00** | basic distance, duration, polyline |
+| Pro | **$10.00** | traffic-aware routing, travel advisories |
+| Enterprise | **$15.00** | fuel-efficient routing, detailed leg/step data |
+
+The field you request determines the tier — not the endpoint. For the current field-to-tier mapping see <https://developers.google.com/maps/billing-and-pricing/pricing>; Google adjusts these periodically.
+
+## Minimal working example — Compute Routes
+
+```http
 POST https://routes.googleapis.com/directions/v2:computeRoutes
+Content-Type: application/json
+X-Goog-Api-Key: YOUR_API_KEY
+X-Goog-FieldMask: routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline
 ```
-
-Request body:
 
 ```json
 {
   "origin": {
     "location": {
-      "latLng": { "latitude": 40.7128, "longitude": -74.0060 }
+      "latLng": { "latitude": 37.419734, "longitude": -122.0827784 }
     }
   },
   "destination": {
     "location": {
-      "latLng": { "latitude": 34.0522, "longitude": -118.2437 }
+      "latLng": { "latitude": 37.417670, "longitude": -122.079595 }
     }
   },
-  "travelMode": "DRIVE",
-  "routingPreference": "TRAFFIC_AWARE",
-  "computeAlternativeRoutes": true,
-  "languageCode": "en-US"
+  "travelMode": "DRIVE"
 }
 ```
 
-Required headers:
-- `X-Goog-Api-Key: YOUR_API_KEY`
-- `X-Goog-FieldMask: routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline`
-
-The field mask is critical — it controls both what's returned and what you're billed for.
-
-## Travel Modes
-
-- `DRIVE` — Car routing with real-time traffic
-- `WALK` — Pedestrian routing
-- `BICYCLE` — Cycling routes
-- `TRANSIT` — Public transportation (bus, train, subway)
-- `TWO_WHEELER` — Motorcycle/scooter routing (select regions)
-
-## Routing Preferences
-
-- `TRAFFIC_UNAWARE` — Fastest route without traffic data (cheapest)
-- `TRAFFIC_AWARE` — Considers current traffic conditions
-- `TRAFFIC_AWARE_OPTIMAL` — Most accurate traffic routing (most expensive)
+**Travel modes:** `DRIVE`, `WALK`, `BICYCLE`, `TRANSIT`, `TWO_WHEELER`.
+**Routing preferences:** `TRAFFIC_UNAWARE` (cheapest), `TRAFFIC_AWARE`, `TRAFFIC_AWARE_OPTIMAL`.
 
 ## Waypoints
 
-Add intermediate stops to a route:
+Add intermediate stops with `intermediates`, and set `optimizeWaypointOrder: true` to let the API reorder them for the shortest route:
 
 ```json
 {
@@ -75,11 +85,11 @@ Add intermediate stops to a route:
 }
 ```
 
-Setting `optimizeWaypointOrder: true` reorders waypoints for the most efficient route.
+Per-endpoint `intermediates` limits are documented on each method page.
 
 ## Route Matrix
 
-Compute travel times between multiple origins and destinations:
+Compute travel times across a grid of origins and destinations:
 
 ```
 POST https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix
@@ -100,9 +110,15 @@ POST https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix
 }
 ```
 
+## Comparison to the legacy Directions API
+
+As of 2026-04-21, the Directions API and Distance Matrix API are **not listed as deprecated or retired** on Google's deprecations page. However, Google actively positions Routes API as their successor — the Routes product landing page prominently links a "Migrate from Directions or Distance Matrix APIs" guide and a "Why migrate to the Routes API?" rationale page.
+
+Treat Directions API as **legacy — still available but superseded**. New integrations should use Routes API for: field masks (pay only for fields you request), better traffic models, two-wheeler routing, toll/fuel-aware options, and continued investment. No sunset date has been published.
+
 ## JavaScript API — DirectionsService
 
-For client-side routing within the Maps JavaScript API:
+For client-side routing inside the Maps JavaScript API, the `DirectionsService` class remains available. The name is preserved for historical reasons (pre-Routes API), but it's the client-side companion to Routes:
 
 ```javascript
 const directionsService = new google.maps.DirectionsService();
@@ -131,9 +147,7 @@ directionsService.route(request, (result, status) => {
 });
 ```
 
-## Displaying Route Steps
-
-Render turn-by-turn directions:
+### Displaying route steps
 
 ```javascript
 const steps = result.routes[0].legs[0].steps;
@@ -147,6 +161,8 @@ steps.forEach((step, i) => {
 ```
 
 ## Geocoding API
+
+<!-- Scheduled for extraction into geocoding.md in a later batch; kept here verbatim for now. -->
 
 Convert addresses to coordinates and vice versa:
 
@@ -174,9 +190,13 @@ geocoder.geocode({ location: { lat: 40.714224, lng: -73.961452 } }, (results, st
 });
 ```
 
-## Common Errors
+## Common errors
 
 - `ZERO_RESULTS` — No route found between origin and destination
 - `NOT_FOUND` — One of the locations could not be geocoded
-- `MAX_WAYPOINTS_EXCEEDED` — More than 25 waypoints (free tier limit)
+- `MAX_WAYPOINTS_EXCEEDED` — Too many intermediate waypoints; see the per-endpoint limit on the method's reference page
 - `OVER_QUERY_LIMIT` — Too many requests; implement exponential backoff
+
+## See also
+
+- [Route Optimization API](./route-optimization.md) — for fleet/vehicle tour optimization (the solver use case).

@@ -1,0 +1,430 @@
+[
+  {
+    "id": "q01-referer-error",
+    "question": "I'm getting a RefererNotAllowedMapError on my production site. How do I fix it?",
+    "retrieved": [
+      {
+        "source_url": "https://developers.google.com/maps/documentation/javascript/error-messages",
+        "similarity": 0.689
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/javascript/load-maps-js-api",
+        "similarity": 0.665
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/javascript/load-maps-js-api",
+        "similarity": 0.608
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/javascript/error-messages",
+        "similarity": 0.567
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/javascript/error-messages",
+        "similarity": 0.558
+      }
+    ],
+    "answer": "The `RefererNotAllowedMapError` means the HTTP referrer of your page doesn't match the website restrictions configured for your API key [Source 1]. You need to add your production domain to the allowed referrers in the Google Cloud Console.\n\nHere's how to fix it:\n\n1. Go to **Google Cloud Console > Credentials**\n2. Click on your API key\n3. Under **\"Website restrictions\"**, add your domain in this format: `https://yourdomain.com/*`\n4. Wait ~5 minutes for the changes to propagate\n\n**Watch out for these common mistakes** [Source 1]:\n- Using `http://` when your site runs on `https://` (or vice versa)\n- Forgetting the trailing `/*` wildcard\n- Adding the domain without the protocol prefix\n- If you're also testing locally, make sure to add `http://localhost:*` as a separate entry\n\n**Bonus — if you're deploying to Vercel:** Referrer restrictions can break on preview deploys because each preview gets a unique subdomain. You can add `*.vercel.app/*` to a preview-only key, use a separate unrestricted key scoped to a preview environment variable, or proxy Maps through your own origin. Never ship an unrestricted key to production [Source 2, Source 3].\n\n**Sources:**\n- [Common Errors and Troubleshooting](https://developers.google.com/maps/documentation/javascript/error-messages)\n- [Google Maps in React and Next.js](https://developers.google.com/maps/documentation/javascript/load-maps-js-api)",
+    "scores": {
+      "citation_hit": true,
+      "mentions_ok": true,
+      "refusal_ok": null
+    },
+    "judge_notes": {
+      "mentions": "The answer addresses both expected concepts: it explains HTTP referrers (as the mechanism causing the error and how domain restrictions work with protocol prefixes) and API keys (how to configure allowed referrers in the API key settings in Google Cloud Console)."
+    },
+    "passed": true
+  },
+  {
+    "id": "q02-routes-pricing",
+    "question": "How much does the Routes API cost per request?",
+    "retrieved": [
+      {
+        "source_url": "https://developers.google.com/maps/documentation/routes/overview",
+        "similarity": 0.685
+      },
+      {
+        "source_url": "https://developers.google.com/maps/billing-and-pricing/pricing",
+        "similarity": 0.683
+      },
+      {
+        "source_url": "https://developers.google.com/maps/billing-and-pricing/pricing",
+        "similarity": 0.672
+      },
+      {
+        "source_url": "https://developers.google.com/maps/billing-and-pricing/pricing",
+        "similarity": 0.616
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/routes/overview",
+        "similarity": 0.612
+      }
+    ],
+    "answer": "The Routes API uses tiered SKU-based pricing, so the cost per request depends on which fields you include in your `X-Goog-FieldMask` header — the field mask determines the billing tier, not the endpoint itself [Source 1].\n\nHere's the breakdown for the **0–100K requests/month** band (per 1,000 requests), after each tier's free allowance is consumed [Source 3]:\n\n| Tier | Price / 1K | Free allowance/month | Typical fields |\n|---|---|---|---|\n| **Essentials** | $5.00 | 10,000 | Basic distance, duration, polyline |\n| **Pro** | $10.00 | 5,000 | Traffic-aware routing, travel advisories |\n| **Enterprise** | $15.00 | 1,000 | Fuel-efficient routing, detailed leg/step data |\n\nVolume discounts kick in above 100K requests/month — the per-1,000 rate drops across five bands (100K–500K, 500K–1M, 1M–5M, 5M+) [Source 3].\n\nA few important notes:\n\n- **The $200 monthly credit no longer exists** — it was retired on March 1, 2025. Don't base cost estimates on it [Source 4].\n- **SKU rename:** If you see references to \"Compute Routes Basic/Advanced/Preferred\" in older docs, those are now **Essentials/Pro/Enterprise** respectively [Source 2].\n- To minimize cost, keep your field mask as narrow as possible. Requesting only `routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline` keeps you on the Essentials tier [Source 1].\n\n```http\nPOST https://routes.googleapis.com/directions/v2:computeRoutes\nContent-Type: application/json\nX-Goog-Api-Key: YOUR_API_KEY\nX-Goog-FieldMask: routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline\n```\n\n**Sources:**\n- [Routes API](https://developers.google.com/maps/documentation/routes/overview)\n- [Google Maps Platform Billing and Pricing](https://developers.google.com/maps/billing-and-pricing/pricing)",
+    "scores": {
+      "citation_hit": true,
+      "mentions_ok": true,
+      "refusal_ok": null
+    },
+    "judge_notes": {
+      "mentions": "The answer directly addresses the expected concept of 'Routes API' by providing detailed pricing information for the Routes API, including tiered SKU-based pricing, cost per request across different tiers, free allowances, volume discounts, and practical implementation guidance."
+    },
+    "passed": true
+  },
+  {
+    "id": "q03-places-new-autocomplete",
+    "question": "How do I use the new PlaceAutocompleteElement web component?",
+    "retrieved": [
+      {
+        "source_url": "https://developers.google.com/maps/documentation/places/web-service/overview",
+        "similarity": 0.745
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/places/web-service/overview",
+        "similarity": 0.7
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/places/web-service/overview",
+        "similarity": 0.684
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/places/web-service/overview",
+        "similarity": 0.648
+      },
+      {
+        "source_url": "https://developers.google.com/maps/deprecations",
+        "similarity": 0.591
+      }
+    ],
+    "answer": "The `<gmp-place-autocomplete>` web component is the modern replacement for the legacy `Autocomplete` widget. The two most common mistakes developers make are using the wrong event name (`gmp-placeselect` instead of the correct `gmp-select`) and trying to read `event.place` directly — you actually need to call `placePrediction.toPlace()` from the event payload, then `fetchFields()` to retrieve the data you need [Source 1].\n\nHere's a complete working example:\n\n```html\n<!DOCTYPE html>\n<html>\n<body>\n  <gmp-place-autocomplete id=\"pac\"></gmp-place-autocomplete>\n  <div id=\"result\"></div>\n  <gmp-map id=\"map\" center=\"40.7128,-74.0060\" zoom=\"12\" map-id=\"DEMO_MAP_ID\"></gmp-map>\n\n  <script>\n    async function init() {\n      await google.maps.importLibrary(\"places\");\n      const { AdvancedMarkerElement } = await google.maps.importLibrary(\"marker\");\n\n      const pac = document.getElementById(\"pac\");\n      const map = document.getElementById(\"map\");\n      let marker;\n\n      pac.addEventListener(\"gmp-select\", async ({ placePrediction }) => {\n        // Step 1: convert prediction to a Place object\n        const place = placePrediction.toPlace();\n\n        // Step 2: fetch only the fields you need (field mask is required)\n        await place.fetchFields({\n          fields: [\"displayName\", \"formattedAddress\", \"location\"],\n        });\n\n        // Step 3: use the place data\n        document.getElementById(\"result\").textContent =\n          `${place.displayName} — ${place.formattedAddress}`;\n\n        // Step 4: drop a marker\n        if (marker) marker.map = null;\n        marker = new AdvancedMarkerElement({\n          map: map.innerMap,\n          position: place.location,\n          title: place.displayName,\n        });\n      });\n\n      // Always handle errors\n      pac.addEventListener(\"gmp-error\", (e) => console.error(e));\n    }\n    init();\n  </script>\n</body>\n</html>\n```\n\nA few important things to note:\n\n- **Session tokens are handled automatically** — the element internally manages `AutocompleteSessionToken`s, grouping keystrokes and the subsequent `fetchFields()` call into a single billed session. You don't need to create or pass tokens yourself [Source 3].\n- **Use `AdvancedMarkerElement`**, not the deprecated `google.maps.Marker`, for any markers you place based on autocomplete results [Source 1].\n- **Field masks matter for billing** — only the fields you list in `fetchFields()` are returned and billed. If you omit a field, you won't get it back silently [Source 4].\n\n**Sources:**\n- [Places API (New)](https://developers.google.com/maps/documentation/places/web-service/overview)",
+    "scores": {
+      "citation_hit": true,
+      "mentions_ok": true,
+      "refusal_ok": null
+    },
+    "judge_notes": {
+      "mentions": "The answer directly addresses the expected concept of PlaceAutocompleteElement by explaining how to use the `<gmp-place-autocomplete>` web component, providing a complete working example with event handling, place data retrieval, and practical usage patterns."
+    },
+    "passed": true
+  },
+  {
+    "id": "q04-2026-deprecations",
+    "question": "What Google Maps features are being deprecated in 2026?",
+    "retrieved": [
+      {
+        "source_url": "https://developers.google.com/maps/deprecations",
+        "similarity": 0.699
+      },
+      {
+        "source_url": "https://developers.google.com/maps/deprecations",
+        "similarity": 0.695
+      },
+      {
+        "source_url": "https://developers.google.com/maps/deprecations",
+        "similarity": 0.672
+      },
+      {
+        "source_url": "https://developers.google.com/maps/deprecations",
+        "similarity": 0.668
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/javascript/load-maps-js-api",
+        "similarity": 0.556
+      }
+    ],
+    "answer": "Based on the retrieved documentation, there are **two Maps JavaScript API features with hard sunset dates in May 2026**. These are the most urgent deprecations to address.\n\n---\n\n## Urgent: May 2026 Sunsets\n\n### 1. Drawing Library (`google.maps.drawing`) → Terra Draw\n\nThe entire `google.maps.drawing` library is being removed. The recommended replacement is **Terra Draw**, an open-source drawing library with a Google Maps adapter [Source 1].\n\n- **Announced:** August 8, 2025\n- **Migration guide:** https://developers.google.com/maps/documentation/javascript/examples/map-drawing-terradraw\n\n### 2. Heatmap Layer (`google.maps.visualization.HeatmapLayer`) → deck.gl HeatmapLayer\n\nThe built-in heatmap visualization is being removed. The replacement is the [`deck.gl` HeatmapLayer](https://deck.gl/docs/api-reference/aggregation-layers/heatmap-layer) [Source 1].\n\n- **Announced:** May 27, 2025\n- **Sunset:** May 2026\n\n---\n\n## Important Clarifications for 2026\n\nA few things developers commonly *think* are deprecated in 2026 — but aren't [Sources 1, 2, 3]:\n\n| Item | Actual Status |\n|---|---|\n| `google.maps.Marker` | Deprecated in name, but **no sunset date scheduled** — existing code continues to work |\n| Directions API | **Not deprecated at all** — Routes API is recommended for new projects, but Directions API has no removal date |\n| Inline `styles` array on `google.maps.Map` | **Not deprecated** — only the legacy *cloud-based* maps styling was deprecated, and that was already decommissioned in March 2025 |\n\n---\n\n## Recommended Action\n\nIf your app uses the Drawing Library or HeatmapLayer, migrate before May 2026. For everything else (Marker, addDomListener, etc.), those carry no scheduled sunset — migrate opportunistically when convenient [Source 2].\n\n**Sources:**\n- [Deprecations and Migration Guide](https://developers.google.com/maps/deprecations)",
+    "scores": {
+      "citation_hit": true,
+      "mentions_ok": true,
+      "refusal_ok": null
+    },
+    "judge_notes": {
+      "mentions": "The answer directly addresses the expected concept by clearly identifying and describing Google Maps features being deprecated in 2026, specifically the Drawing Library and Heatmap Layer with their May 2026 sunset dates."
+    },
+    "passed": true
+  },
+  {
+    "id": "q05-getting-started",
+    "question": "How do I load the Maps JavaScript API in a React app?",
+    "retrieved": [
+      {
+        "source_url": "https://developers.google.com/maps/documentation/javascript/load-maps-js-api",
+        "similarity": 0.768
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/javascript/load-maps-js-api",
+        "similarity": 0.742
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/javascript/load-maps-js-api",
+        "similarity": 0.74
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/javascript/overview",
+        "similarity": 0.733
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/javascript/error-messages",
+        "similarity": 0.689
+      }
+    ],
+    "answer": "The recommended approach for new React/Next.js projects is to use **`@vis.gl/react-google-maps`** (team-maintained, StrictMode-safe, built around `AdvancedMarkerElement`) or **`@googlemaps/js-api-loader` v2** if you need lower-level control [Source 1]. Avoid the legacy `new Loader({...}).load()` pattern or manually injecting `<script>` tags inside `useEffect` — both cause double-injection issues with React StrictMode [Source 2].\n\nHere are both approaches:\n\n---\n\n### Option A: `@vis.gl/react-google-maps` (recommended for new projects)\n\nThe simplest path — wrap your app in `<APIProvider>` and drop in `<Map>` and `<AdvancedMarker>` components directly [Source 3]:\n\n```tsx\n// app/components/StoreMap.tsx\n'use client'; // Next.js App Router — required\n\nimport { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';\n\nconst center = { lat: 40.7128, lng: -74.0060 };\n\nexport default function StoreMap() {\n  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!;\n\n  return (\n    <APIProvider apiKey={apiKey} libraries={['marker']}>\n      <Map\n        defaultCenter={center}\n        defaultZoom={12}\n        mapId={process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID}\n        style={{ width: '100%', height: 480 }}\n        gestureHandling=\"cooperative\"\n      >\n        <AdvancedMarker position={center} title=\"New York City\">\n          <Pin background=\"#EA4335\" borderColor=\"#B31412\" glyphColor=\"#fff\" />\n        </AdvancedMarker>\n      </Map>\n    </APIProvider>\n  );\n}\n```\n\n---\n\n### Option B: `@googlemaps/js-api-loader` v2 (lower-level control)\n\nUse `setOptions` + `importLibrary` — both are idempotent, so StrictMode double-invocation is safe [Source 3]:\n\n```tsx\n// app/components/RawMap.tsx\n'use client';\n\nimport { useEffect, useRef } from 'react';\nimport { setOptions, importLibrary } from '@googlemaps/js-api-loader';\n\n// Run once at module scope — guard against SSR\nif (typeof window !== 'undefined') {\n  setOptions({ key: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!, v: 'weekly' });\n}\n\nexport default function RawMap() {\n  const containerRef = useRef<HTMLDivElement>(null);\n  const mapRef = useRef<google.maps.Map | null>(null);\n\n  useEffect(() => {\n    let cancelled = false;\n\n    (async () => {\n      const [{ Map }, { AdvancedMarkerElement }] = await Promise.all([\n        importLibrary('maps') as Promise<google.maps.MapsLibrary>,\n        importLibrary('marker') as Promise<google.maps.MarkerLibrary>,\n      ]);\n      if (cancelled || !containerRef.current) return;\n\n      const map = new Map(containerRef.current, {\n        center: { lat: 40.7128, lng: -74.0060 },\n        zoom: 12,\n        mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID,\n      });\n      mapRef.current = map;\n\n      new AdvancedMarkerElement({ map, position: map.getCenter()!, title: 'NYC' });\n    })();\n\n    // Cleanup: cancel async work, release map reference\n    return () => {\n      cancelled = true;\n      mapRef.current = null;\n    };\n  }, []);\n\n  return <div ref={containerRef} style={{ width: '100%', height: 480 }} />;\n}\n```\n\n---\n\n### Key things to remember\n\n| Concern | Guidance |\n|---|---|\n| SSR (Next.js) | Mark map files `'use client'`; use `next/",
+    "scores": {
+      "citation_hit": true,
+      "mentions_ok": true,
+      "refusal_ok": null
+    },
+    "judge_notes": {
+      "mentions": "The answer explicitly addresses both required concepts: it discusses loading via `<script>` tags (mentioned as something to avoid and contrasted with modern approaches), and prominently features the API key requirement through `process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` in multiple code examples and setup instructions."
+    },
+    "passed": true
+  },
+  {
+    "id": "q06-200-credit",
+    "question": "Does Google Maps Platform still offer a $200 monthly credit?",
+    "retrieved": [
+      {
+        "source_url": "https://developers.google.com/maps/billing-and-pricing/pricing",
+        "similarity": 0.647
+      },
+      {
+        "source_url": "https://developers.google.com/maps/billing-and-pricing/pricing",
+        "similarity": 0.622
+      },
+      {
+        "source_url": "https://developers.google.com/maps/billing-and-pricing/pricing",
+        "similarity": 0.576
+      },
+      {
+        "source_url": "https://developers.google.com/maps/billing-and-pricing/pricing",
+        "similarity": 0.567
+      },
+      {
+        "source_url": "https://developers.google.com/maps/deprecations",
+        "similarity": 0.53
+      }
+    ],
+    "answer": "No, the $200 monthly credit no longer exists. Google retired it on **March 1, 2025** and replaced it with a per-SKU free tier system [Source 1].\n\nHere's how the new model works:\n\n- **Essentials SKUs** (e.g., Dynamic Maps, Geocoding, basic Autocomplete) — **10,000 free events/month**\n- **Pro SKUs** (e.g., Places Pro details, Text/Nearby Search Pro, Routes Pro) — **5,000 free events/month**\n- **Enterprise SKUs** (e.g., Places Enterprise, Routes Enterprise, Fleet Routing) — **1,000 free events/month**\n\nA few important details to keep in mind [Source 1]:\n\n- Free allowances are **per SKU, per billing account** — not pooled across SKUs. So your 10,000 free Dynamic Maps loads and 10,000 free Geocoding calls are tracked independently.\n- Allowances **reset on the 1st of each month** at midnight Pacific Time and do not roll over.\n- If any of your internal dashboards, budget forecasts, or documentation still reference the \"$200 credit,\" they are out of date and will understate your spend at any meaningful volume.\n\n**Sources:**\n- [Google Maps Platform Billing and Pricing](https://developers.google.com/maps/billing-and-pricing/pricing)",
+    "scores": {
+      "citation_hit": true,
+      "mentions_ok": null,
+      "refusal_ok": null
+    },
+    "judge_notes": {},
+    "passed": true
+  },
+  {
+    "id": "q07-directions-vs-routes",
+    "question": "What's the difference between the Directions API and the Routes API?",
+    "retrieved": [
+      {
+        "source_url": "https://developers.google.com/maps/documentation/routes/overview",
+        "similarity": 0.747
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/routes/overview",
+        "similarity": 0.74
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/route-optimization/overview",
+        "similarity": 0.62
+      },
+      {
+        "source_url": "https://developers.google.com/maps/billing-and-pricing/pricing",
+        "similarity": 0.614
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/route-optimization/overview",
+        "similarity": 0.596
+      }
+    ],
+    "answer": "The Directions API is a legacy product that remains available but has been superseded by the Routes API [Source 1, Source 2]. Google actively positions the Routes API as the successor and provides migration guides, but as of 2026-04-21, no sunset date has been published for the Directions API [Source 1].\n\nThe key advantages of the Routes API over the legacy Directions API are [Source 2]:\n\n- **Field masks** — You request only the fields you need, which controls both response shape and the billing SKU tier. You only pay for what you use.\n- **Better traffic models** — Supports `TRAFFIC_UNAWARE`, `TRAFFIC_AWARE`, and `TRAFFIC_AWARE_OPTIMAL` routing preferences.\n- **Broader travel modes** — Adds `TWO_WHEELER` support on top of the standard drive/walk/bicycle/transit modes.\n- **Toll and fuel-aware options** — Available at higher tiers.\n- **Continued investment** — New features are being added to Routes API, not the legacy Directions API.\n\nFor **new integrations**, you should use the Routes API. If you're building client-side routing within the Maps JavaScript API, the `DirectionsService` class is still the in-browser companion — the class name is preserved for historical reasons [Source 1].\n\nHere's a quick comparison of the two approaches:\n\n**Legacy Directions API (client-side):**\n```javascript\nconst directionsService = new google.maps.DirectionsService();\nconst directionsRenderer = new google.maps.DirectionsRenderer();\n\ndirectionsRenderer.setMap(map);\n\ndirectionsService.route(\n  {\n    origin: \"New York, NY\",\n    destination: \"Boston, MA\",\n    travelMode: google.maps.TravelMode.DRIVING,\n  },\n  (result, status) => {\n    if (status === google.maps.DirectionsStatus.OK) {\n      directionsRenderer.setDirections(result);\n    } else {\n      console.error(\"Directions request failed:\", status);\n    }\n  }\n);\n```\n\n**Routes API (REST, server-side or direct HTTP):**\n```http\nPOST https://routes.googleapis.com/directions/v2:computeRoutes\nContent-Type: application/json\nX-Goog-Api-Key: YOUR_API_KEY\nX-Goog-FieldMask: routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline\n```\n```json\n{\n  \"origin\": { \"address\": \"New York, NY\" },\n  \"destination\": { \"address\": \"Boston, MA\" },\n  \"travelMode\": \"DRIVE\",\n  \"routingPreference\": \"TRAFFIC_AWARE\"\n}\n```\n\nThe field mask (`X-Goog-FieldMask`) in the Routes API is important — it determines which billing SKU tier is applied. Requesting only basic fields like `duration` and `distanceMeters` keeps you on the **Essentials tier at $5.00/1K requests**, while adding traffic-aware fields moves you to **Pro at $10.00/1K** [Source 2].\n\n**Sources:**\n- [Routes API](https://developers.google.com/maps/documentation/routes/overview)\n- [Google Maps Platform Billing and Pricing](https://developers.google.com/maps/billing-and-pricing/pricing)",
+    "scores": {
+      "citation_hit": true,
+      "mentions_ok": true,
+      "refusal_ok": null
+    },
+    "judge_notes": {
+      "mentions": "The answer comprehensively addresses the expected concept of 'Routes' by explaining the Routes API as the successor to the Directions API, detailing its advantages (field masks, traffic models, travel modes, toll/fuel options, continued investment), and providing practical code examples comparing both approaches."
+    },
+    "passed": true
+  },
+  {
+    "id": "q08-quota-exceeded",
+    "question": "What does the OVER_QUERY_LIMIT error mean and how do I resolve it?",
+    "retrieved": [
+      {
+        "source_url": "https://developers.google.com/maps/documentation/javascript/error-messages",
+        "similarity": 0.565
+      },
+      {
+        "source_url": "https://developers.google.com/maps/billing-and-pricing/pricing",
+        "similarity": 0.552
+      },
+      {
+        "source_url": "https://developers.google.com/maps/billing-and-pricing/pricing",
+        "similarity": 0.55
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/routes/overview",
+        "similarity": 0.528
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/javascript/load-maps-js-api",
+        "similarity": 0.526
+      }
+    ],
+    "answer": "The `OVER_QUERY_LIMIT` error means you've exceeded either your queries-per-second (QPS) or daily quota limit for the API you're calling [Source 1]. It can appear in both the Maps JavaScript API and web service APIs like Geocoding and Directions.\n\nThere are a few ways to resolve it:\n\n1. **Implement exponential backoff** — retry the request with increasing delays between attempts.\n2. **Batch requests** where the API supports it.\n3. **Check your current quota** in Cloud Console → APIs & Services → Quotas.\n4. **Request a quota increase** if your legitimate usage consistently exceeds the default limits.\n5. **Set quota caps** in Cloud Console to prevent runaway traffic from consuming excessive quota unexpectedly [Source 3].\n\nHere's a working implementation of exponential backoff for geocoding requests [Source 1]:\n\n```javascript\nasync function geocodeWithRetry(address, retries = 3) {\n  for (let i = 0; i < retries; i++) {\n    try {\n      const result = await geocoder.geocode({ address });\n      return result;\n    } catch (error) {\n      if (error.code === \"OVER_QUERY_LIMIT\" && i < retries - 1) {\n        // Wait 1s, then 2s, then 4s before each retry\n        await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));\n        continue;\n      }\n      throw error;\n    }\n  }\n}\n```\n\nIf you're hitting this error frequently in production, it's also worth reviewing whether you're using **session tokens** for Autocomplete requests — without them, every keystroke fires a separate billable request, which can burn through quota quickly [Source 3].\n\n**Sources:**\n- [Common Errors and Troubleshooting](https://developers.google.com/maps/documentation/javascript/error-messages)\n- [Google Maps Platform Billing and Pricing](https://developers.google.com/maps/billing-and-pricing/pricing)",
+    "scores": {
+      "citation_hit": true,
+      "mentions_ok": true,
+      "refusal_ok": null
+    },
+    "judge_notes": {
+      "mentions": "The answer directly addresses the quota concept by explaining that OVER_QUERY_LIMIT means exceeding quota limits, mentioning quota checks in Cloud Console, requesting quota increases, and setting quota caps."
+    },
+    "passed": true
+  },
+  {
+    "id": "q09-places-legacy",
+    "question": "Should I use the legacy Places API Autocomplete service or the new one?",
+    "retrieved": [
+      {
+        "source_url": "https://developers.google.com/maps/documentation/places/web-service/overview",
+        "similarity": 0.682
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/places/web-service/overview",
+        "similarity": 0.666
+      },
+      {
+        "source_url": "https://developers.google.com/maps/deprecations",
+        "similarity": 0.624
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/places/web-service/overview",
+        "similarity": 0.595
+      },
+      {
+        "source_url": "https://developers.google.com/maps/deprecations",
+        "similarity": 0.589
+      }
+    ],
+    "answer": "Use the **Places API (New)** surfaces — specifically the `<gmp-place-autocomplete>` web component or `AutocompleteSuggestion.fetchAutocompleteSuggestions()` for programmatic control. The legacy `Autocomplete` widget and `AutocompleteService` cannot be enabled on new Google Cloud projects as of March 2025, and all new development should target the current API [Source 2].\n\nThe modern `<gmp-place-autocomplete>` element also handles session tokens automatically, which is a meaningful cost optimization — the legacy approach required you to manage `AutocompleteSessionToken` manually, and missing that meant each keystroke was billed as a standalone request rather than bundled into a cheaper per-session SKU [Source 4].\n\nHere's a minimal working example using the new element and listening for the `gmp-select` event:\n\n```javascript\n// Load the places library\nconst { PlaceAutocompleteElement } = await google.maps.importLibrary(\"places\");\n\n// Or use it directly as a web component in HTML:\n// <gmp-place-autocomplete></gmp-place-autocomplete>\n\nconst autocompleteElement = document.querySelector(\"gmp-place-autocomplete\");\n\nautocompleteElement.addEventListener(\"gmp-select\", async (event) => {\n  // Get the Place object from the prediction\n  const place = await event.placePrediction.toPlace();\n\n  // Fetch the fields you need (field mask required)\n  await place.fetchFields({\n    fields: [\"displayName\", \"formattedAddress\", \"location\"],\n  });\n\n  console.log(place.displayName);\n  console.log(place.formattedAddress);\n  console.log(place.location.lat(), place.location.lng());\n});\n```\n\nKey differences from the legacy approach [Sources 1, 4]:\n\n| Legacy | Current |\n|---|---|\n| `new google.maps.places.Autocomplete(input)` | `<gmp-place-autocomplete>` element |\n| `autocomplete.addListener(\"place_changed\", ...)` | `element.addEventListener(\"gmp-select\", ...)` |\n| `autocomplete.getPlace()` | `event.placePrediction.toPlace()` |\n| Manual `AutocompleteSessionToken` | Managed automatically by the element |\n\n**Sources:**\n- [Places API (New)](https://developers.google.com/maps/documentation/places/web-service/overview)\n- [Deprecations and Migration Guide](https://developers.google.com/maps/deprecations)",
+    "scores": {
+      "citation_hit": true,
+      "mentions_ok": null,
+      "refusal_ok": null
+    },
+    "judge_notes": {},
+    "passed": true
+  },
+  {
+    "id": "q10-out-of-scope-weather",
+    "question": "What's the weather in San Francisco today?",
+    "retrieved": [
+      {
+        "source_url": "https://developers.google.com/maps/documentation/places/web-service/overview",
+        "similarity": 0.386
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/places/web-service/overview",
+        "similarity": 0.363
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/routes/overview",
+        "similarity": 0.353
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/javascript/load-maps-js-api",
+        "similarity": 0.345
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/routes/overview",
+        "similarity": 0.343
+      }
+    ],
+    "answer": "I don't have enough information in the current documentation to answer this confidently. You may want to check the official Google Maps documentation at https://developers.google.com/maps/documentation.\n\n(To clarify: weather data is entirely outside the scope of Google Maps Platform APIs, and this assistant only covers Maps, Places, Routes, Geocoding, and related developer topics. For weather, try a service like weather.gov or a weather API provider.)",
+    "scores": {
+      "citation_hit": null,
+      "mentions_ok": null,
+      "refusal_ok": true
+    },
+    "judge_notes": {
+      "refusal": "The assistant correctly refused to answer by explicitly acknowledging that weather data is outside the scope of Google Maps APIs, redirecting to appropriate weather services, and avoiding any fabricated weather information or facts."
+    },
+    "passed": true
+  },
+  {
+    "id": "q11-out-of-scope-aws",
+    "question": "How do I deploy a Lambda function on AWS?",
+    "retrieved": [
+      {
+        "source_url": "https://developers.google.com/maps/documentation/javascript/load-maps-js-api",
+        "similarity": 0.355
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/places/web-service/overview",
+        "similarity": 0.327
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/javascript/load-maps-js-api",
+        "similarity": 0.324
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/javascript/overview",
+        "similarity": 0.323
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/route-optimization/overview",
+        "similarity": 0.31
+      }
+    ],
+    "answer": "I don't have enough information in the current documentation to answer this confidently. You may want to check the official Google Maps documentation at https://developers.google.com/maps/documentation.",
+    "scores": {
+      "citation_hit": null,
+      "mentions_ok": null,
+      "refusal_ok": true
+    },
+    "judge_notes": {
+      "refusal": "The assistant correctly refused to answer by acknowledging the limitation and redirecting the user to Google Maps documentation, implying this is outside the scope of Google Maps API support without fabricating any AWS Lambda deployment details."
+    },
+    "passed": true
+  },
+  {
+    "id": "q12-hallucination-bait",
+    "question": "What is the pricing for the Google Maps Holographic API?",
+    "retrieved": [
+      {
+        "source_url": "https://developers.google.com/maps/billing-and-pricing/pricing",
+        "similarity": 0.598
+      },
+      {
+        "source_url": "https://developers.google.com/maps/billing-and-pricing/pricing",
+        "similarity": 0.562
+      },
+      {
+        "source_url": "https://developers.google.com/maps/billing-and-pricing/pricing",
+        "similarity": 0.551
+      },
+      {
+        "source_url": "https://developers.google.com/maps/billing-and-pricing/pricing",
+        "similarity": 0.518
+      },
+      {
+        "source_url": "https://developers.google.com/maps/documentation/places/web-service/overview",
+        "similarity": 0.495
+      }
+    ],
+    "answer": "I don't have enough information in the current documentation to answer this confidently. You may want to check the official Google Maps documentation at https://developers.google.com/maps/documentation.",
+    "scores": {
+      "citation_hit": null,
+      "mentions_ok": null,
+      "refusal_ok": true
+    },
+    "judge_notes": {
+      "refusal": "The assistant correctly refused to provide pricing information for a non-existent product by acknowledging the limitation and redirecting to official documentation rather than fabricating details."
+    },
+    "passed": true
+  }
+]
