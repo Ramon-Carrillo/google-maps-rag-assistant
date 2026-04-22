@@ -48,13 +48,16 @@ Full pipeline + design decisions: [`/architecture` on the deployed site](https:/
 
 The repo includes a golden-question eval suite (`evals/`) covering happy-path retrieval, out-of-scope refusals, and adversarial hallucination bait. Every run writes a time-stamped markdown report to `evals/results/` so the git history shows quality trending over time.
 
-| Run | Score | Notes |
-|---|---|---|
-| v1 (regex scorer) | 7 / 12 (58%) | Baseline. 5 "failures" were scorer false negatives — correct refusals the regex didn't recognize. |
-| v2 (LLM judge, strict schema) | 4 / 12 (33%) | Regressed because schema was too strict — surfaced a different bug. |
-| v2.1 (LLM judge, loose schema) | **11 / 12 (92%)** | Real signal. The remaining failure (q04) is legitimate: the answer lists deprecations but doesn't anchor them to 2026 as asked. |
+| Run | Scorer | Prompt | Score | Notes |
+|---|---|---|---|---|
+| v1 | regex | system-prompt v1 | 7 / 12 (58%) | Baseline. 5 "failures" were scorer false negatives — correct refusals the regex didn't recognize. |
+| v2 | LLM judge, strict schema | system-prompt v1 | 4 / 12 (33%) | Regressed because schema was too strict — surfaced a different bug. |
+| v2.1 | LLM judge, loose schema | system-prompt v1 | 11 / 12 (92%) | Real signal. Remaining failure (q04) legitimate: answer listed deprecations but didn't anchor them to 2026 as asked. |
+| v3 | LLM judge, loose schema | **system-prompt v2** | **12 / 12 (100%)** | Prompt v2 added explicit "anchor temporal claims to retrieved docs" + "empty retrieval ⇒ refuse" rules, closing the q04 gap. |
 
-The score delta across runs reflects scorer quality, not model quality — the underlying model and prompt didn't change. That's deliberate: *writing the eval is the work, not running it*.
+Two distinct iteration arcs are visible here: **v1 → v2.1** reflects *scorer* improvement (same model, same prompt — the score went up because we stopped mis-scoring correct answers). **v2.1 → v3** reflects *prompt* improvement (same scorer, but the prompt now handles a failure mode the first version missed).
+
+Both arcs are committed run-by-run under `evals/results/` so the git history is an audit trail.
 
 ## Running locally
 
