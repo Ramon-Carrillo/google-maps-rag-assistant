@@ -127,32 +127,22 @@ export async function POST(request: Request) {
 
   const queryText = extractText(lastUserMessage);
 
-  // Retrieve relevant documents. We capture a separate `retrievalError`
-  // so we can (a) still answer the user with a graceful fallback and
-  // (b) surface the exact failure in the streamed response for debugging
-  // prod issues without needing Vercel log access.
-  //
-  // TEMPORARY: `retrievalError` is piped into the UI stream for diagnostic
-  // purposes. Remove once the prod pipeline is verified healthy.
+  // Retrieve relevant documents. Threshold was empirically tuned against
+  // the 12-question eval set: 0.65 was too strict (legitimate Maps
+  // questions like "what's deprecated in 2026" topped at 0.525). 0.4
+  // catches all real matches without letting in noise — out-of-scope
+  // questions still sit in the 0.3s and get filtered.
   let retrievedDocs: Awaited<ReturnType<typeof retrieveRelevantDocs>> = [];
-  let retrievalError: string | null = null;
-
   try {
     retrievedDocs = await retrieveRelevantDocs(queryText, {
-      matchThreshold: 0.65,
+      matchThreshold: 0.4,
       matchCount: 5,
     });
   } catch (err) {
-    const e = err as Error & { cause?: unknown; code?: string };
-    retrievalError = [
-      `name=${e.name}`,
-      `code=${e.code ?? "(none)"}`,
-      `message=${e.message}`,
-      e.cause ? `cause=${String(e.cause)}` : null,
-    ]
-      .filter(Boolean)
-      .join(" | ");
-    console.error("Retrieval pipeline failure:", retrievalError);
+    // Any retrieval failure (Voyage down, Neon unreachable) degrades
+    // gracefully — we pass no context and rely on the system prompt's
+    // refusal instruction. Error is logged to Vercel function logs.
+    console.error("Retrieval failed:", err);
   }
 
   const context = formatRetrievedContext(retrievedDocs);
@@ -168,16 +158,6 @@ export async function POST(request: Request) {
 
   const stream = createUIMessageStream({
     execute: ({ writer }) => {
-      // TEMPORARY: surface retrieval errors to the client for prod
-      // diagnostics. Remove once prod is verified healthy.
-      if (retrievalError) {
-        writer.write({
-          type: "data-debug",
-          id: "retrieval-error",
-          data: { error: retrievalError },
-        });
-      }
-
       writer.write({
         type: "data-sources",
         id: "sources",

@@ -41,8 +41,9 @@ export async function retrieveRelevantDocs(
   } catch (error) {
     console.error("Retrieval error:", error);
     // Re-throw so the caller can distinguish "no matches above threshold"
-    // (empty array) from "the pipeline broke" (exception). Previously we
-    // swallowed the error here which made prod failures silent.
+    // (empty array) from "the pipeline broke" (exception). The API
+    // route's try/catch degrades gracefully — the user still gets an
+    // answer (a refusal), just without retrieved context.
     throw error;
   }
 }
