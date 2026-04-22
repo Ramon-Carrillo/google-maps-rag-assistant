@@ -9,8 +9,11 @@ import {
   Gauge,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { GithubIcon } from "@/components/icons/github";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+const GITHUB_URL = "https://github.com/Ramon-Carrillo/google-maps-rag-assistant";
 
 export const metadata = {
   title: "Architecture — Maps RAG Assistant",
@@ -94,7 +97,21 @@ export default function ArchitecturePage() {
             <ArrowLeft className="h-4 w-4" />
             Back
           </Link>
-          <ThemeToggle />
+          <div className="flex items-center gap-1">
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(
+                buttonVariants({ variant: "ghost", size: "icon" }),
+                "h-8 w-8"
+              )}
+              aria-label="View source on GitHub"
+            >
+              <GithubIcon className="h-4 w-4" />
+            </a>
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
@@ -199,9 +216,20 @@ export default function ArchitecturePage() {
       </main>
 
       <footer className="border-t">
-        <div className="mx-auto max-w-5xl px-4 py-6 text-center text-sm text-muted-foreground">
-          Built by Ramon Montalvo — informed by real Google Maps API support
-          experience at HCLTech
+        <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 px-4 py-6 text-center text-sm text-muted-foreground sm:flex-row sm:justify-between sm:text-left">
+          <p>
+            Built by Ramon Montalvo — informed by real Google Maps API support
+            experience at HCLTech
+          </p>
+          <a
+            href={GITHUB_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground/80 hover:text-foreground"
+          >
+            <GithubIcon className="h-4 w-4" />
+            Source on GitHub
+          </a>
         </div>
       </footer>
     </div>

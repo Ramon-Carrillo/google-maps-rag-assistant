@@ -2,7 +2,10 @@ import Link from "next/link";
 import { MapPin, MessageSquare, Code, Zap, BookOpen, Shield } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { GithubIcon } from "@/components/icons/github";
 import { cn } from "@/lib/utils";
+
+const GITHUB_URL = "https://github.com/Ramon-Carrillo/google-maps-rag-assistant";
 
 const features = [
   {
@@ -53,7 +56,21 @@ export default function HomePage() {
             <MapPin className="h-5 w-5 text-primary" />
             <span className="font-semibold">Maps RAG Assistant</span>
           </div>
-          <ThemeToggle />
+          <div className="flex items-center gap-1">
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(
+                buttonVariants({ variant: "ghost", size: "icon" }),
+                "h-8 w-8"
+              )}
+              aria-label="View source on GitHub"
+            >
+              <GithubIcon className="h-4 w-4" />
+            </a>
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
@@ -80,7 +97,7 @@ export default function HomePage() {
             documentation with source citations.
           </p>
 
-          <div className="mt-8 flex items-center justify-center gap-4">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/maps-assistant"
               className={cn(buttonVariants({ size: "lg" }))}
@@ -93,6 +110,18 @@ export default function HomePage() {
             >
               How it works
             </Link>
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(
+                buttonVariants({ variant: "ghost", size: "lg" }),
+                "gap-2"
+              )}
+            >
+              <GithubIcon className="h-4 w-4" />
+              View source
+            </a>
           </div>
         </section>
 
@@ -151,9 +180,20 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="border-t">
-        <div className="mx-auto max-w-5xl px-4 py-6 text-center text-sm text-muted-foreground">
-          Built by Ramon Montalvo — informed by real Google Maps API support
-          experience at HCLTech
+        <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 px-4 py-6 text-center text-sm text-muted-foreground sm:flex-row sm:justify-between sm:text-left">
+          <p>
+            Built by Ramon Montalvo — informed by real Google Maps API support
+            experience at HCLTech
+          </p>
+          <a
+            href={GITHUB_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground/80 hover:text-foreground"
+          >
+            <GithubIcon className="h-4 w-4" />
+            Source on GitHub
+          </a>
         </div>
       </footer>
     </div>
