@@ -5,6 +5,18 @@
 #   v1's eval surfaced q04 as a subtle failure: the model listed generic
 #   deprecations without anchoring them to 2026. v2 adds temporal-anchor
 #   + empty-context guidance to make the refusal behavior less ambiguous.
+#
+# Attempted v3 on 2026-04-22 (not kept):
+# - v3 tried to turn the canned refusal from a ceiling into a floor,
+#   instructing the model to also actively contradict nonexistent-product
+#   premises (e.g. "Holographic API") and list adjacent real products.
+# - Batch 2 eval: v2 scored 11/12 (q12 judge flagged as too-terse refusal);
+#   v3 scored 9/12 because the "list adjacent products" behavior leaked
+#   into true out-of-scope topic prompts (q10 weather, q11 AWS), where
+#   the judge wanted a tighter refusal. Rolled back. The prompt change
+#   needed a narrower trigger condition; the better next step is adding
+#   a reranker to the retrieval layer so adversarial queries return
+#   empty retrieval and the v2 canned refusal fires cleanly.
 
 ## Role
 

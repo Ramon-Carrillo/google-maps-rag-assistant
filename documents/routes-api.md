@@ -160,36 +160,6 @@ steps.forEach((step, i) => {
 });
 ```
 
-## Geocoding API
-
-<!-- Scheduled for extraction into geocoding.md in a later batch; kept here verbatim for now. -->
-
-Convert addresses to coordinates and vice versa:
-
-### Forward Geocoding
-
-```javascript
-const geocoder = new google.maps.Geocoder();
-
-geocoder.geocode({ address: "1600 Amphitheatre Parkway, Mountain View, CA" }, (results, status) => {
-  if (status === "OK") {
-    const location = results[0].geometry.location;
-    console.log(location.lat(), location.lng());
-    map.setCenter(location);
-  }
-});
-```
-
-### Reverse Geocoding
-
-```javascript
-geocoder.geocode({ location: { lat: 40.714224, lng: -73.961452 } }, (results, status) => {
-  if (status === "OK" && results[0]) {
-    console.log(results[0].formatted_address);
-  }
-});
-```
-
 ## Common errors
 
 - `ZERO_RESULTS` — No route found between origin and destination
