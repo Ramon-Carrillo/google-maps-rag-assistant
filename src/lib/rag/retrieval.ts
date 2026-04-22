@@ -40,7 +40,10 @@ export async function retrieveRelevantDocs(
     return rows ?? [];
   } catch (error) {
     console.error("Retrieval error:", error);
-    return [];
+    // Re-throw so the caller can distinguish "no matches above threshold"
+    // (empty array) from "the pipeline broke" (exception). Previously we
+    // swallowed the error here which made prod failures silent.
+    throw error;
   }
 }
 

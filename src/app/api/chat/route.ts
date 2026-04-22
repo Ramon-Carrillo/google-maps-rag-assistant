@@ -127,11 +127,33 @@ export async function POST(request: Request) {
 
   const queryText = extractText(lastUserMessage);
 
-  // Retrieve relevant documents
-  const retrievedDocs = await retrieveRelevantDocs(queryText, {
-    matchThreshold: 0.65,
-    matchCount: 5,
-  });
+  // Retrieve relevant documents. We capture a separate `retrievalError`
+  // so we can (a) still answer the user with a graceful fallback and
+  // (b) surface the exact failure in the streamed response for debugging
+  // prod issues without needing Vercel log access.
+  //
+  // TEMPORARY: `retrievalError` is piped into the UI stream for diagnostic
+  // purposes. Remove once the prod pipeline is verified healthy.
+  let retrievedDocs: Awaited<ReturnType<typeof retrieveRelevantDocs>> = [];
+  let retrievalError: string | null = null;
+
+  try {
+    retrievedDocs = await retrieveRelevantDocs(queryText, {
+      matchThreshold: 0.65,
+      matchCount: 5,
+    });
+  } catch (err) {
+    const e = err as Error & { cause?: unknown; code?: string };
+    retrievalError = [
+      `name=${e.name}`,
+      `code=${e.code ?? "(none)"}`,
+      `message=${e.message}`,
+      e.cause ? `cause=${String(e.cause)}` : null,
+    ]
+      .filter(Boolean)
+      .join(" | ");
+    console.error("Retrieval pipeline failure:", retrievalError);
+  }
 
   const context = formatRetrievedContext(retrievedDocs);
 
@@ -146,6 +168,16 @@ export async function POST(request: Request) {
 
   const stream = createUIMessageStream({
     execute: ({ writer }) => {
+      // TEMPORARY: surface retrieval errors to the client for prod
+      // diagnostics. Remove once prod is verified healthy.
+      if (retrievalError) {
+        writer.write({
+          type: "data-debug",
+          id: "retrieval-error",
+          data: { error: retrievalError },
+        });
+      }
+
       writer.write({
         type: "data-sources",
         id: "sources",
