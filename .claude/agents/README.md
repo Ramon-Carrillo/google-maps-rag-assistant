@@ -1,86 +1,106 @@
 # Docs maintenance team
 
-Three subagents that keep `/documents/*.md` aligned with what Google Maps Platform actually publishes today. They're designed to work in sequence, though each is useful on its own.
+Five project-level Claude Code subagents that keep `/documents/*.md` aligned with what the Google Maps Platform ecosystem actually needs. Discovery + maintenance in one team, with hard tool-surface boundaries so no single agent can both invent facts AND persist them.
 
-| Agent | Role | When to invoke |
-|---|---|---|
-| `maps-docs-auditor` | Detective — finds what's stale | "Check what's outdated", "audit the corpus" |
-| `maps-docs-researcher` | Fact-finder — pulls current data from Google | "What's the current Routes/Optimization API pricing?" |
-| `maps-docs-writer` | Scribe — updates the markdown files | After research is in hand, or for direct manual updates |
+## Agents at a glance
 
-## Typical workflow
+| Agent | Role | Listens to | Writes to |
+|---|---|---|---|
+| `maps-docs-demand-scout` | Ear to the ground — what devs actually ask | SO, GitHub issues, Reddit, blogs | `/documents/.audit/demand-scout-<date>.md` |
+| `maps-docs-mapper` | Cartographer — Google's official taxonomy | `developers.google.com/maps/**` only | `/documents/.audit/mapper-<date>.md` |
+| `maps-docs-auditor` | Detective — catches staleness in existing docs | Each local doc's `source_url` | `/documents/.audit/audit-<date>.md` |
+| `maps-docs-researcher` | Deep-dive specialist — one topic at a time | `developers.google.com/maps/**` only | Research brief in-chat (no disk writes) |
+| `maps-docs-writer` | Scribe — applies briefs to the corpus | Briefs and direct instructions | `/documents/*.md` |
+
+## Two workflows
+
+### Workflow A — build or expand the corpus
 
 ```
- 1. User: "Check our docs for stale info"
+ 1. User: "What should we cover?"
       ↓
- 2. maps-docs-auditor
-      reads /documents/*.md
-      WebFetches each source_url
-      writes /documents/.audit/audit-YYYY-MM-DD.md
+ 2. Run IN PARALLEL:
+      - maps-docs-demand-scout  → demand-scout-<date>.md
+      - maps-docs-mapper        → mapper-<date>.md
       ↓
- 3. User reviews the audit, picks a stale file to fix
+ 3. User (or orchestrator) cross-references both reports:
+      high demand + official Google doc  → P1 (full doc)
+      official doc + low/no demand       → P3 (stub)
+      demand with no official doc        → troubleshooting content
       ↓
- 4. User: "Update billing-and-pricing.md based on the audit"
+ 4. For each P1/P2 topic:
+      maps-docs-researcher → structured brief
+      maps-docs-writer     → /documents/<slug>.md
       ↓
- 5. maps-docs-researcher
-      deep-dives current Google pricing pages
-      returns a structured brief
-      ↓
- 6. maps-docs-writer
-      applies the brief's findings to the .md file
-      reminds user to re-ingest
-      ↓
- 7. User: `npx tsx src/lib/rag/ingestion.ts`
-      existing chunks deleted by source_url, new chunks written
-      ↓
- 8. User: `npx tsx evals/run-evals.ts`
-      confirm the updated doc still passes eval
+ 5. Re-ingest:  npx tsx src/lib/rag/ingestion.ts
+ 6. Re-eval:   npx tsx evals/run-evals.ts
 ```
 
-## Why three agents, not one
+### Workflow B — maintain what's already there
 
-Separation of concerns. The auditor can run cheaply and often without modifying anything; the writer can be trusted to never hallucinate because it doesn't touch the web. Each agent has a narrow prompt, narrow tool set, and one job. That's how you keep a team from collectively turning into a single bloated super-agent.
+```
+ 1. User: "Check our docs for stale info."
+      ↓
+ 2. maps-docs-auditor → audit-<date>.md
+      ↓
+ 3. For each stale finding the user approves:
+      maps-docs-researcher → brief
+      maps-docs-writer     → updates /documents/<file>.md
+      ↓
+ 4. Re-ingest + re-eval
+```
 
-Tool surfaces per agent:
+Workflow A ran first (once) when the corpus was built out. Workflow B runs periodically to catch drift.
 
-- **auditor** — `Read, Glob, Grep, WebFetch, WebSearch, Write` (writes the audit report only, never touches `/documents/*.md`)
-- **researcher** — `WebFetch, WebSearch, Read, Grep` (no Write at all)
-- **writer** — `Read, Write, Edit, Glob` (no web access at all)
+## Tool surfaces — why the boundaries matter
 
-This is deliberate. The researcher CAN'T accidentally write to the wrong file. The writer CAN'T hallucinate from a stale WebFetch. The auditor CAN'T edit `/documents/*.md` even if asked.
+Each agent has a deliberately minimal tool set. The goal is **no single agent can both invent facts and persist them**.
+
+| Agent | Read files | Edit `/documents/` | Write reports | Access web |
+|---|---|---|---|---|
+| demand-scout | ✅ | ❌ | ✅ (report only) | ✅ |
+| mapper       | ✅ | ❌ | ✅ (report only) | ✅ |
+| auditor      | ✅ | ❌ | ✅ (report only) | ✅ |
+| researcher   | ✅ | ❌ | ❌ | ✅ |
+| writer       | ✅ | ✅ | ❌ (file writes only) | ❌ |
+
+Consequences:
+- The **writer can't hallucinate from a stale fetch** — no web access.
+- The **researcher can't accidentally corrupt files** — no Write.
+- The **three investigative agents** (scout, mapper, auditor) can only report what they find; a human routes findings to the writer.
+- The writer trusts the researcher's brief; if something's wrong with the brief, the human catches it before the writer executes.
 
 ## Invoking them
 
-These are Claude Code subagents. To invoke one explicitly in a Claude Code session:
+These are Claude Code subagents. In a Claude Code session inside this project:
 
-> "Use the maps-docs-auditor to check for outdated info."
+> "Run the demand-scout to see what Maps questions developers actually ask."
+> "Use the mapper to build a taxonomy of Google's current APIs."
+> "Audit our docs against Google's current pricing page."
+> "Research the current Route Optimization API pricing."
+> "Update places-api.md based on that research brief."
 
-Or let Claude decide based on the agent `description` fields:
-
-> "Our docs still mention the $200 credit — can you audit the corpus?"
-> (Claude will route this to `maps-docs-auditor` automatically.)
+Claude will route each request to the right agent via the `description` frontmatter.
 
 ## Known-stale facts the auditor should flag
 
-Current as of 2026-04-21 — keep this list updated as Google changes things:
+Keep this list updated as Google changes things:
 
-- The **$200 monthly credit is gone**. Any doc that still promises it is stale.
-- The **Routes API** may have been renamed (commonly referenced as "Route Optimization API"). Auditor should confirm canonical name during its run.
-- `google.maps.Marker` → `AdvancedMarkerElement`
-- Legacy Places API (`PlacesService`) → Places API (New) (`Place` class, `PlaceAutocompleteElement`)
+- The **$200 monthly Google Maps Platform credit was retired Feb 28, 2025** — replaced with per-SKU free usage tiers (Essentials 10k / Pro 5k / Enterprise 1k / Map Tiles 100k).
+- The **Routes API** has been renamed — verify canonical name during audits. Many third-party sources still call it "Routes API".
+- `google.maps.Marker` → `AdvancedMarkerElement`.
+- Legacy Places API / `PlacesService` → Places API (New) / `Place` class / `PlaceAutocompleteElement`.
+- Drawing Library → Terra Draw (Aug 2025).
+- Heatmap Layer → deck.gl `HeatmapLayer` (May 2025).
+- `addDomListener` → native `addEventListener`.
+- Places Autocomplete `bounds/location/radius` → `locationBias` / `locationRestriction`.
 
-## Re-ingestion after updates
-
-Every time a `.md` file changes:
+## After any corpus change
 
 ```bash
+# Idempotent: deletes existing chunks by source_url before re-inserting
 npx tsx src/lib/rag/ingestion.ts
-```
 
-The script is idempotent — it deletes existing chunks by `source_url` before re-inserting, so you can run it as often as you want without duplicates.
-
-Then re-run evals to confirm nothing regressed:
-
-```bash
+# Confirm no eval regression
 npx tsx evals/run-evals.ts
 ```
