@@ -145,4 +145,4 @@ evals/
 
 ## Credits
 
-Built by Ramon Montalvo. Informed by a year of Tier 1 Google Maps Platform support at HCLTech.
+Built by Ramon Carrillo. Informed by a year of Tier 1 Google Maps Platform support at HCLTech.

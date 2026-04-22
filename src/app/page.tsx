@@ -182,7 +182,7 @@ export default function HomePage() {
       <footer className="border-t">
         <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 px-4 py-6 text-center text-sm text-muted-foreground sm:flex-row sm:justify-between sm:text-left">
           <p>
-            Built by Ramon Montalvo — informed by real Google Maps API support
+            Built by Ramon Carrillo — informed by real Google Maps API support
             experience at HCLTech
           </p>
           <a

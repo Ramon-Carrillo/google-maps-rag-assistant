@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     template: `%s — ${title}`,
   },
   description,
-  authors: [{ name: "Ramon Montalvo" }],
+  authors: [{ name: "Ramon Carrillo" }],
   keywords: [
     "Google Maps",
     "Maps JavaScript API",
