@@ -18,8 +18,11 @@ import { cn } from "@/lib/utils";
 
 const GITHUB_URL = "https://github.com/Ramon-Carrillo/google-maps-rag-assistant";
 
+// The root layout applies a "%s — Google Maps RAG Assistant" title
+// template, so this page's own title should just be the short form
+// ("Architecture") — otherwise the brand gets duplicated in the <title>.
 export const metadata = {
-  title: "Architecture — Maps RAG Assistant",
+  title: "Architecture",
   description:
     "Hybrid RAG with a curated Neon pgvector corpus and agentic web search against developers.google.com. Two-stage retrieval (Voyage embedding + cross-encoder rerank) with committed eval suite tracking every prompt and chunking change.",
 };

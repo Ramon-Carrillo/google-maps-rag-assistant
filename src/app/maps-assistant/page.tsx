@@ -9,7 +9,8 @@ import { cn } from "@/lib/utils";
 const GITHUB_URL = "https://github.com/Ramon-Carrillo/google-maps-rag-assistant";
 
 export const metadata = {
-  title: "Chat — Google Maps RAG Assistant",
+  // Short form — the root layout's title template adds "— Google Maps RAG Assistant".
+  title: "Chat",
   description: "Ask questions about the Google Maps Platform APIs.",
 };
 
