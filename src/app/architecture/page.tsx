@@ -190,7 +190,7 @@ export default function ArchitecturePage() {
         </div>
       </header>
 
-      <main className="flex-1">
+      <main id="main" className="flex-1">
         {/* Intro */}
         <section className="mx-auto max-w-3xl px-4 pt-12 pb-8 text-center">
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">

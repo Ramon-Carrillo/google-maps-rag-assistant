@@ -75,7 +75,7 @@ export default function HomePage() {
       </header>
 
       {/* Hero */}
-      <main className="flex-1">
+      <main id="main" className="flex-1">
         <section className="mx-auto max-w-3xl px-4 py-16 text-center sm:py-24">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border bg-muted/50 px-4 py-1.5 text-sm text-muted-foreground">
             <span className="relative flex h-2 w-2">

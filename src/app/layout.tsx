@@ -89,6 +89,16 @@ export default function RootLayout({
         attributes like `data-gr-ext-installed` before React hydrates.
       */}
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
+        {/* Skip link — first focusable element on every page. Hidden
+            until it receives keyboard focus, then pops to the top-left.
+            Every page's <main> carries id="main" so this target
+            resolves. WCAG 2.4.1 bypass-blocks. */}
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
+        >
+          Skip to main content
+        </a>
         <ThemeProvider>
           <TooltipProvider>{children}</TooltipProvider>
         </ThemeProvider>

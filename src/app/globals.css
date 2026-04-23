@@ -125,7 +125,15 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
+  }
+  /* Strengthened focus indicator: solid 2px ring with a 2px offset.
+     The previous `outline-ring/50` was 50% opacity which rendered too
+     subtle against light backgrounds (WCAG 2.4.7). */
+  *:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 4px;
   }
   body {
     @apply bg-background text-foreground;

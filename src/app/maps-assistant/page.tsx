@@ -51,7 +51,7 @@ export default function MapsAssistantPage() {
       </header>
 
       {/* Chat */}
-      <main className="flex-1 overflow-hidden">
+      <main id="main" className="flex-1 overflow-hidden">
         <MapsAssistantChat />
       </main>
     </div>
