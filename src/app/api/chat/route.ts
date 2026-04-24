@@ -14,6 +14,15 @@ import {
   formatRetrievedContext,
 } from "@/lib/rag/retrieval";
 
+// --- Route config ---
+//
+// Vercel's Node runtime defaults to a 10s function timeout on Hobby,
+// which is tight for a request that does retrieval + streaming +
+// managed web_search (web_search alone can take 15–30s). Bumping to
+// 60s covers a worst-case multi-search turn with headroom. Still well
+// within Hobby's 60s streaming cap.
+export const maxDuration = 60;
+
 // --- Rate Limiting (in-memory sliding window) ---
 
 const rateLimitMap = new Map<string, number[]>();
@@ -190,9 +199,25 @@ export async function POST(request: Request) {
         tools: {
           web_search: webSearchTool,
         },
+        onError: ({ error }) => {
+          // streamText swallows provider errors by default — log them
+          // so they show up in Vercel function logs and we can diagnose
+          // auth/rate-limit/model issues in prod.
+          console.error("streamText error:", error);
+        },
       });
 
       writer.merge(result.toUIMessageStream());
+    },
+    onError: (error) => {
+      // Surface the error message to the client instead of silently
+      // closing the stream. Without this, a thrown error in the
+      // execute callback closes the UI stream with no assistant text,
+      // which looks like "the agent is broken."
+      console.error("UI stream error:", error);
+      const message =
+        error instanceof Error ? error.message : "Unknown error";
+      return `Sorry — the assistant hit an error: ${message}`;
     },
   });
 
