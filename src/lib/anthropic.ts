@@ -45,8 +45,16 @@ export const anthropic = createAnthropic({
   apiKey,
 });
 
-export const CHAT_MODEL = "claude-sonnet-4-6";
+// Chat model. Switched from claude-sonnet-4-6 to Haiku 4.5 for ~3×
+// faster first-token and ~5× lower cost, which matters for a portfolio
+// demo where interactive snappiness > marginal nuance on long-tail
+// edge cases. Sonnet is still right for serious agentic work; for
+// question answering over a curated corpus with retrieval already
+// doing the heavy lifting, Haiku is the better fit.
+//
+// To revert: flip the constant and redeploy. No other changes needed.
+export const CHAT_MODEL = "claude-haiku-4-5-20251001";
 
-// Cheaper, faster model for eval-time judging. Haiku is fine for binary
-// PASS/FAIL classification and keeps eval runs inexpensive.
+// Same model used for eval-time LLM-as-judge. Haiku is fine for
+// binary PASS/FAIL classification and keeps eval runs inexpensive.
 export const JUDGE_MODEL = "claude-haiku-4-5-20251001";

@@ -155,11 +155,13 @@ export async function POST(request: Request) {
 
   const context = formatRetrievedContext(retrievedDocs);
 
-  // Load system prompt and inject retrieved context. The prompt tells
-  // the model to use ONLY retrieved + web-search-tool content — no
-  // pretraining fill-in.
+  // Load the static system prompt. This is the same every request, so
+  // we cache it with Anthropic prompt caching below (see the messages
+  // array). Retrieved context is per-query and can't be cached — we
+  // send it as a second system message so only the changing bit pays
+  // the uncached TTFT cost.
   const basePrompt = loadSystemPrompt();
-  const systemPrompt = `${basePrompt}\n\n## Retrieved Documentation\n\nThe following documentation chunks were retrieved from the curated corpus based on the user's query. Use this as the PRIMARY source of truth. If it doesn't cover the question, call the \`web_search\` tool for live Google Maps documentation before answering. Cite sources using the format specified above.\n\n${context}`;
+  const retrievedContextBlock = `## Retrieved Documentation\n\nThe following documentation chunks were retrieved from the curated corpus based on the user's query. Use this as the PRIMARY source of truth. If it doesn't cover the question, call the \`web_search\` tool for live Google Maps documentation before answering. Cite sources using the format specified above.\n\n${context}`;
 
   // Hybrid RAG: Claude can escalate to Anthropic's managed web search
   // when the curated corpus doesn't cover the question. Restricted to
@@ -206,8 +208,24 @@ export async function POST(request: Request) {
 
       const result = streamText({
         model: anthropic(CHAT_MODEL),
-        system: systemPrompt,
-        messages: modelMessages,
+        // Prompt caching (Anthropic ephemeral cache, 5-min TTL).
+        // Message 1: static base prompt — cacheable. After the first
+        //   request warms the cache, subsequent turns within 5 min
+        //   pay ~10% of the usual input-token cost on this block and
+        //   cut TTFT noticeably.
+        // Message 2: retrieved context — per-query, NOT cached.
+        // Then the actual user/assistant turns.
+        messages: [
+          {
+            role: "system",
+            content: basePrompt,
+            providerOptions: {
+              anthropic: { cacheControl: { type: "ephemeral" } },
+            },
+          },
+          { role: "system", content: retrievedContextBlock },
+          ...modelMessages,
+        ],
         maxOutputTokens: 2048,
         tools: { web_search: webSearchTool },
         onError: ({ error }) => {
