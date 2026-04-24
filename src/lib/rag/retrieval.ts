@@ -83,6 +83,14 @@ export async function retrieveRelevantDocs(
       query,
       candidates.map((c) => c.content),
       finalTopK,
+      1,
+      // Chat runtime: don't burn 30–95s on the Voyage free-tier 429
+      // retry ladder. If rerank fails, the catch block below falls
+      // back to cosine ordering immediately — the user gets an answer
+      // in seconds instead of after a minute of silence. Ingestion
+      // scripts call rerankDocuments directly without this flag and
+      // keep the retry ladder.
+      { retryOn429: false },
     );
 
     // Map rerank results back to full RetrievedDocument shape, and

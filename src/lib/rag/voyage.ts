@@ -154,6 +154,7 @@ export async function rerankDocuments(
   documents: string[],
   topK: number,
   attempt = 1,
+  { retryOn429 = true }: { retryOn429?: boolean } = {},
 ): Promise<RerankResult[]> {
   if (documents.length === 0) return [];
 
@@ -174,15 +175,22 @@ export async function rerankDocuments(
     }),
   });
 
-  // Same 429 backoff policy as embeddings — shared rate bucket on the
-  // free tier, so bulk eval runs will see retries.
-  if (res.status === 429 && attempt <= 5) {
+  // Retry ladder: 5s → 10s → 20s → 30s → 30s, up to 5 attempts.
+  // Appropriate for ingestion/eval scripts where we HAVE to get a
+  // rerank result and can afford the wait.
+  //
+  // NOT appropriate for runtime chat: if Voyage is 429'ing now on the
+  // free tier (3 RPM shared bucket), it will almost certainly 429
+  // again 30s from now. The chat path passes `retryOn429: false` so
+  // we fail fast and the caller falls back to cosine-order retrieval
+  // immediately — trading a small precision loss for answer latency.
+  if (res.status === 429 && retryOn429 && attempt <= 5) {
     const backoffMs = Math.min(30_000, 5_000 * 2 ** (attempt - 1));
     console.log(
       `  [voyage/rerank] rate-limited, retrying in ${backoffMs / 1000}s...`,
     );
     await new Promise((r) => setTimeout(r, backoffMs));
-    return rerankDocuments(query, documents, topK, attempt + 1);
+    return rerankDocuments(query, documents, topK, attempt + 1, { retryOn429 });
   }
 
   if (!res.ok) {
