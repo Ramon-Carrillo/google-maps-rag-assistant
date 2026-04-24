@@ -162,26 +162,29 @@ export async function POST(request: Request) {
   const systemPrompt = `${basePrompt}\n\n## Retrieved Documentation\n\nThe following documentation chunks were retrieved from the curated corpus based on the user's query. Use this as the PRIMARY source of truth. If it doesn't cover the question, call the \`web_search\` tool for live Google Maps documentation before answering. Cite sources using the format specified above.\n\n${context}`;
 
   // Hybrid RAG: Claude can escalate to Anthropic's managed web search
-  // when the curated corpus doesn't cover the question. We restrict the
-  // search to Google-owned documentation domains.
+  // when the curated corpus doesn't cover the question. Restricted to
+  // Google-owned documentation domains so answers stay authoritative.
   //
-  // maxUses is 1 (not 3): each managed web_search round-trip takes
-  // 10–20s, and three stacked calls reliably blow past Vercel's 60s
-  // function ceiling → 504 Gateway Timeout → the client sees the
-  // "sources consulted" chip but no answer text. One search is almost
-  // always enough once the curated corpus has already been retrieved.
+  // maxUses=1 is the real latency/timeout guard: each managed
+  // web_search round-trip takes 10–20s, so three stacked calls
+  // (the SDK default was effectively unbounded here before) would
+  // blow past Vercel's 60s function ceiling and produce the
+  // "sources consulted chip then silence" 504 we hit earlier.
   //
-  // If retrieval returned strong context (≥3 chunks), skip the tool
-  // entirely — the model shouldn't go to the web for answers we already
-  // have locally, and removing the tool prevents any chance of a
-  // speculative web_search call blowing the budget.
-  const hasStrongContext = retrievedDocs.length >= 3;
-  const webSearchTool = hasStrongContext
-    ? undefined
-    : anthropic.tools.webSearch_20260209({
-        maxUses: 1,
-        allowedDomains: ["developers.google.com", "cloud.google.com"],
-      });
+  // We ALWAYS leave the tool available — even when retrieval returned
+  // several chunks — because retrieval count is not the same as
+  // retrieval quality. For long-tail questions (Aerial View API,
+  // Solar API, newer products not in the curated corpus) the
+  // retriever returns 5 low-relevance chunks but none actually
+  // answer the question. Disabling the tool in that case forced
+  // the model into an unhelpful "I can't confirm this" hedge. The
+  // model is trusted to call web_search only when the retrieved
+  // context is genuinely insufficient; the system prompt tells it
+  // how to make that call.
+  const webSearchTool = anthropic.tools.webSearch_20260209({
+    maxUses: 1,
+    allowedDomains: ["developers.google.com", "cloud.google.com"],
+  });
 
   // Build a UI message stream that (a) emits a "sources" data part
   // upfront so the client can render citation chips before the answer,
@@ -206,7 +209,7 @@ export async function POST(request: Request) {
         system: systemPrompt,
         messages: modelMessages,
         maxOutputTokens: 2048,
-        tools: webSearchTool ? { web_search: webSearchTool } : undefined,
+        tools: { web_search: webSearchTool },
         onError: ({ error }) => {
           // streamText swallows provider errors by default — log them
           // so they show up in Vercel function logs and we can diagnose
