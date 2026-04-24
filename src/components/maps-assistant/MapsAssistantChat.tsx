@@ -20,16 +20,46 @@ export function MapsAssistantChat() {
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  // Ref attached to the last message's wrapper. Lets us scroll that
+  // message to the top of the viewport (not the scroll container's
+  // bottom) when a new turn starts.
+  const lastMessageRef = useRef<HTMLDivElement>(null);
+  // Tracks message count across renders so we can detect "a new
+  // message was just added" vs. "an existing message's content
+  // changed" (i.e. streaming tokens). We only want to scroll for
+  // the former.
+  const prevMessageCountRef = useRef(0);
 
   const isLoading = status === "streaming" || status === "submitted";
 
-  // Auto-scroll on new messages. `scrollRef` is on the native scroll
-  // container (overflow-y-auto) so setting scrollTop actually works.
+  // Scroll-on-new-message, not scroll-on-every-token.
+  //
+  // Old behaviour: scrolled to scrollHeight on every messages/status
+  // change, which meant the assistant answer was pinned to the bottom
+  // of the viewport during streaming — the user had to scroll back up
+  // to read the start of a long reply. Bad UX.
+  //
+  // New behaviour: when a NEW message appears, scroll that message to
+  // the TOP of the viewport (block: "start"). Then as tokens stream
+  // in, the scroll position stays put, the answer fills in below the
+  // user's question, and the user reads naturally top-to-bottom.
+  // Content changes on an existing message don't touch the scroll.
   useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    el.scrollTop = el.scrollHeight;
-  }, [messages, status]);
+    const prevCount = prevMessageCountRef.current;
+    prevMessageCountRef.current = messages.length;
+    if (messages.length <= prevCount) return; // No new message — ignore streaming updates.
+    const last = messages[messages.length - 1];
+    // Only scroll on user submission. When the assistant message
+    // appears a moment later, we LEAVE the scroll alone — scrolling
+    // again would push the user's question out of view as the answer
+    // streams in below it. Letting the answer grow downward within
+    // the existing viewport keeps the Q&A pair together.
+    if (last?.role !== "user") return;
+    lastMessageRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, [messages]);
 
   const handleSend = () => {
     const trimmed = input.trim();
@@ -86,18 +116,31 @@ export function MapsAssistantChat() {
           ) : (
             <AnimatePresence mode="popLayout">
               <div className="py-4">
-                {messages.map((message) => (
-                  <ChatMessage
-                    key={message.id}
-                    role={message.role as "user" | "assistant"}
-                    content={getMessageText(message)}
-                    sources={
-                      message.role === "assistant"
-                        ? getMessageSources(message)
-                        : undefined
-                    }
-                  />
-                ))}
+                {messages.map((message, idx) => {
+                  const isLast = idx === messages.length - 1;
+                  return (
+                    // Wrap each message in a div so we can attach a ref
+                    // to the last one without having to forwardRef through
+                    // the ChatMessage component. scroll-mt-4 gives a small
+                    // top margin when scrollIntoView lands so the message
+                    // isn't flush with the chrome above the messages area.
+                    <div
+                      key={message.id}
+                      ref={isLast ? lastMessageRef : undefined}
+                      className="scroll-mt-4"
+                    >
+                      <ChatMessage
+                        role={message.role as "user" | "assistant"}
+                        content={getMessageText(message)}
+                        sources={
+                          message.role === "assistant"
+                            ? getMessageSources(message)
+                            : undefined
+                        }
+                      />
+                    </div>
+                  );
+                })}
                 {isLoading &&
                   messages[messages.length - 1]?.role === "user" && (
                     <TypingIndicator />
