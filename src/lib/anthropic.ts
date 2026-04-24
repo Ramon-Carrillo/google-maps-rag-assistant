@@ -45,15 +45,21 @@ export const anthropic = createAnthropic({
   apiKey,
 });
 
-// Chat model. Switched from claude-sonnet-4-6 to Haiku 4.5 for ~3×
-// faster first-token and ~5× lower cost, which matters for a portfolio
-// demo where interactive snappiness > marginal nuance on long-tail
-// edge cases. Sonnet is still right for serious agentic work; for
-// question answering over a curated corpus with retrieval already
-// doing the heavy lifting, Haiku is the better fit.
+// Chat model.
 //
-// To revert: flip the constant and redeploy. No other changes needed.
-export const CHAT_MODEL = "claude-haiku-4-5-20251001";
+// Note on Haiku: tried switching to claude-haiku-4-5-20251001 for
+// speed, but it returns HTTP 400 when the request includes the
+// managed web_search tool — Haiku 4.5 doesn't support programmatic
+// tool calling, which web_search requires (the API asks for an
+// explicit `allowed_callers=["direct"]` that the AI SDK's
+// webSearch_20260209 wrapper doesn't currently expose). Falling
+// back to Sonnet 4.6, which supports the full hybrid RAG surface.
+//
+// The real TTFT win on this project is prompt caching (see the
+// streamText system array in api/chat/route.ts), not the model
+// choice — and cache reads on Sonnet are still cheaper and faster
+// than uncached Haiku on our workload.
+export const CHAT_MODEL = "claude-sonnet-4-6";
 
 // Same model used for eval-time LLM-as-judge. Haiku is fine for
 // binary PASS/FAIL classification and keeps eval runs inexpensive.
