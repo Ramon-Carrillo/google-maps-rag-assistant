@@ -163,15 +163,25 @@ export async function POST(request: Request) {
 
   // Hybrid RAG: Claude can escalate to Anthropic's managed web search
   // when the curated corpus doesn't cover the question. We restrict the
-  // search to Google-owned documentation domains and cap at 3 searches
-  // per turn so a single user message can't burn unlimited searches.
+  // search to Google-owned documentation domains.
   //
-  // Cost: ~$10 per 1,000 searches billed to our Anthropic account —
-  // negligible at portfolio demo traffic.
-  const webSearchTool = anthropic.tools.webSearch_20260209({
-    maxUses: 3,
-    allowedDomains: ["developers.google.com", "cloud.google.com"],
-  });
+  // maxUses is 1 (not 3): each managed web_search round-trip takes
+  // 10–20s, and three stacked calls reliably blow past Vercel's 60s
+  // function ceiling → 504 Gateway Timeout → the client sees the
+  // "sources consulted" chip but no answer text. One search is almost
+  // always enough once the curated corpus has already been retrieved.
+  //
+  // If retrieval returned strong context (≥3 chunks), skip the tool
+  // entirely — the model shouldn't go to the web for answers we already
+  // have locally, and removing the tool prevents any chance of a
+  // speculative web_search call blowing the budget.
+  const hasStrongContext = retrievedDocs.length >= 3;
+  const webSearchTool = hasStrongContext
+    ? undefined
+    : anthropic.tools.webSearch_20260209({
+        maxUses: 1,
+        allowedDomains: ["developers.google.com", "cloud.google.com"],
+      });
 
   // Build a UI message stream that (a) emits a "sources" data part
   // upfront so the client can render citation chips before the answer,
@@ -196,9 +206,7 @@ export async function POST(request: Request) {
         system: systemPrompt,
         messages: modelMessages,
         maxOutputTokens: 2048,
-        tools: {
-          web_search: webSearchTool,
-        },
+        tools: webSearchTool ? { web_search: webSearchTool } : undefined,
         onError: ({ error }) => {
           // streamText swallows provider errors by default — log them
           // so they show up in Vercel function logs and we can diagnose
