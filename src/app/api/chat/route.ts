@@ -208,14 +208,19 @@ export async function POST(request: Request) {
 
       const result = streamText({
         model: anthropic(CHAT_MODEL),
-        // Prompt caching (Anthropic ephemeral cache, 5-min TTL).
-        // Message 1: static base prompt — cacheable. After the first
-        //   request warms the cache, subsequent turns within 5 min
-        //   pay ~10% of the usual input-token cost on this block and
-        //   cut TTFT noticeably.
-        // Message 2: retrieved context — per-query, NOT cached.
-        // Then the actual user/assistant turns.
-        messages: [
+        // Prompt caching via the top-level `system` array. Two system
+        // blocks:
+        //   [0] static base prompt — cacheable. providerOptions
+        //       marks it for Anthropic's ephemeral cache (5-min TTL).
+        //       First request writes the cache, subsequent requests
+        //       within 5 minutes read it at ~10% of normal input cost.
+        //   [1] per-query retrieved context — not cached, changes
+        //       every turn.
+        // Keeping this in `system` (rather than injecting into
+        // `messages`) avoids confusing the client-side UI stream
+        // parser, which doesn't expect synthetic system entries in
+        // the assistant's message history.
+        system: [
           {
             role: "system",
             content: basePrompt,
@@ -224,8 +229,8 @@ export async function POST(request: Request) {
             },
           },
           { role: "system", content: retrievedContextBlock },
-          ...modelMessages,
         ],
+        messages: modelMessages,
         maxOutputTokens: 2048,
         tools: { web_search: webSearchTool },
         onError: ({ error }) => {
